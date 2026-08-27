@@ -37,12 +37,12 @@ describe('ScoreEngine', () => {
       expect(callScoreItem?.amount).toBe(14); // 4 + 10
     });
 
-    it('should calculate call score for LOSS (normal call 4 = -4)', () => {
+    it('should calculate call score for LOSS (normal call 4, actual 3 = -1)', () => {
       const round = createBaseRound();
       const result = calculateRoundScores(round, POCKET_DEFAULT_CONFIG);
       
       const callScoreItem = result.players[2].scoreBreakdown.find(item => item.type === 'CALL_SCORE');
-      expect(callScoreItem?.amount).toBe(-4); // -4
+      expect(callScoreItem?.amount).toBe(-1); // |4-3| = -1
     });
 
     it('should calculate super call score for WIN (call 8 = 64)', () => {
@@ -63,7 +63,7 @@ describe('ScoreEngine', () => {
       const result = calculateRoundScores(round, POCKET_DEFAULT_CONFIG);
       
       const callScoreItem = result.players[2].scoreBreakdown.find(item => item.type === 'CALL_SCORE');
-      expect(callScoreItem?.amount).toBe(-32); // -(8 * 4)
+      expect(callScoreItem?.amount).toBe(-32); // (8*8)/2 = -32
     });
   });
 

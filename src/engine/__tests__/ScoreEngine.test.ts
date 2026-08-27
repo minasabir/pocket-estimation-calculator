@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { calculateRoundScores } from '../ScoreEngine';
 import { Round } from '../../models/types';
 import { POCKET_DEFAULT_CONFIG } from '../../features/settings/defaultPresets';
+import { evaluateRound } from '../RuleEngine';
 
 describe('ScoreEngine', () => {
   const createBaseRound = (): Round => ({
@@ -185,10 +186,10 @@ describe('ScoreEngine', () => {
 
     it('should apply only loser penalty when exactly one player loses', () => {
       const round = createBaseRound();
+      round.players[0].result = 'WIN';
+      round.players[1].result = 'LOSS';
       round.players[2].result = 'WIN';
-      round.players[2].actualTricks = 4;
       round.players[3].result = 'WIN';
-      round.players[3].actualTricks = 2;
       
       const result = calculateRoundScores(round, POCKET_DEFAULT_CONFIG);
       
@@ -235,6 +236,76 @@ describe('ScoreEngine', () => {
       const result = calculateRoundScores(round, POCKET_DEFAULT_CONFIG);
       
       expect(result.players[0].finalScore).toBe(result.players[0].calculatedScore);
+    });
+  });
+
+  describe('Auto Double Multiplier', () => {
+    it('should apply x2 multiplier when Caller + 2 With + Dash Call', () => {
+      const round = createBaseRound();
+      // Set up Caller + 2 With + Dash Call scenario
+      round.players[0].call = 5;
+      round.players[0].actualTricks = 5;
+      round.players[0].declaration = 'DASH_CALL';
+      round.players[1].call = 5;
+      round.players[1].actualTricks = 5;
+      round.players[1].isWith = true;
+      round.players[2].call = 5;
+      round.players[2].actualTricks = 5;
+      round.players[2].isWith = true;
+      round.players[3].call = 2;
+      round.players[3].actualTricks = 2;
+      
+      // Evaluate round to set proper WIN/LOSS results
+      const evaluatedRound = evaluateRound(round, POCKET_DEFAULT_CONFIG);
+      
+      const result = calculateRoundScores(evaluatedRound, POCKET_DEFAULT_CONFIG);
+      
+      // Should have x2 multiplier applied
+      expect(result.multiplier).toBe(2);
+    });
+
+    it('should not apply x2 multiplier without Dash Call', () => {
+      const round = createBaseRound();
+      // Set up Caller + 2 With but no Dash Call
+      round.players[0].call = 5;
+      round.players[0].actualTricks = 5;
+      round.players[1].call = 5;
+      round.players[1].actualTricks = 5;
+      round.players[1].isWith = true;
+      round.players[2].call = 5;
+      round.players[2].actualTricks = 5;
+      round.players[2].isWith = true;
+      round.players[3].call = 2;
+      round.players[3].actualTricks = 2;
+      
+      const evaluatedRound = evaluateRound(round, POCKET_DEFAULT_CONFIG);
+      
+      const result = calculateRoundScores(evaluatedRound, POCKET_DEFAULT_CONFIG);
+      
+      // Should not have x2 multiplier
+      expect(result.multiplier).toBe(1);
+    });
+
+    it('should not apply x2 multiplier with only 1 With', () => {
+      const round = createBaseRound();
+      // Set up Caller + 1 With + Dash Call
+      round.players[0].call = 5;
+      round.players[0].actualTricks = 5;
+      round.players[0].declaration = 'DASH_CALL';
+      round.players[1].call = 5;
+      round.players[1].actualTricks = 5;
+      round.players[1].isWith = true;
+      round.players[2].call = 4;
+      round.players[2].actualTricks = 4;
+      round.players[3].call = 2;
+      round.players[3].actualTricks = 2;
+      
+      const evaluatedRound = evaluateRound(round, POCKET_DEFAULT_CONFIG);
+      
+      const result = calculateRoundScores(evaluatedRound, POCKET_DEFAULT_CONFIG);
+      
+      // Should not have x2 multiplier
+      expect(result.multiplier).toBe(1);
     });
   });
 

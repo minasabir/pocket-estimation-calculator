@@ -1,4 +1,5 @@
 import { Round, RulesConfig, ScoreBreakdownItem } from '../models/types';
+import { shouldApplyAutoDoubleMultiplier } from './RuleEngine';
 /**
  * Calculates the score components and final scores for each player in the round.
  */
@@ -26,6 +27,12 @@ export function calculateRoundScores(round: Round, config: RulesConfig): Round {
   if (evaluatedRound.type === 'DOUBLE' && config.doubleRound.enabled) {
     roundMultiplier *= config.doubleRound.multiplier;
   }
+  
+  // Apply automatic x2 multiplier for Caller + 2 With + Dash Call
+  if (shouldApplyAutoDoubleMultiplier(evaluatedRound)) {
+    roundMultiplier *= 2;
+  }
+  
   evaluatedRound.multiplier = roundMultiplier;
 
   evaluatedRound.players.forEach((player) => {

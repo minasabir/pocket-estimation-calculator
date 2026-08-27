@@ -118,3 +118,19 @@ export function evaluateRound(round: Round, config: RulesConfig): Round {
 
   return evaluatedRound;
 }
+
+/**
+ * Checks if the round should have an automatic x2 multiplier due to special conditions:
+ * Caller + 2 With + Dash Call
+ */
+export function shouldApplyAutoDoubleMultiplier(round: Round): boolean {
+  // Check if there is a Dash Call declaration
+  const hasDashCall = round.players.some(p => p.declaration === 'DASH_CALL');
+  if (!hasDashCall) return false;
+
+  // Count With players (excluding Caller)
+  const withCount = round.players.filter(p => p.isWith && !p.isCaller).length;
+  
+  // Condition: Caller + exactly 2 With + Dash Call
+  return withCount === 2;
+}

@@ -1,6 +1,6 @@
 export type RoundType = 'NORMAL' | 'DOUBLE' | 'COLOR' | 'SKIPPED';
 
-export type Color = 'SUNS' | 'BIG' | 'HEARTS' | 'KARO' | 'TREFFEL';
+export type Color = 'SUNS' | 'SPADES' | 'HEARTS' | 'DIAMONDS' | 'CLUBS';
 
 export type RoundStatus = 'UNDER' | 'OVER' | 'INVALID';
 

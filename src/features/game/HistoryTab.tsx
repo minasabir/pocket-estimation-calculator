@@ -26,9 +26,9 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({ gameState, onEditRound }
     if (!color) return 'neutral';
     const c = color.toLowerCase();
     if (c.includes('heart')) return 'hearts';
-    if (c.includes('karo') || c.includes('diamond')) return 'karo';
-    if (c.includes('treffel') || c.includes('club')) return 'treffel';
-    if (c.includes('big')) return 'big';
+    if (c.includes('diamond')) return 'diamonds';
+    if (c.includes('club')) return 'clubs';
+    if (c.includes('spade')) return 'spades';
     return 'suns';
   };
 
@@ -59,11 +59,11 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({ gameState, onEditRound }
                       )}
                     </div>
                     <div className="flex items-center gap-2">
-                      <Badge color={round.status === 'UNDER' ? 'neutral' : round.status === 'OVER' ? 'big' : 'loss'}>
+                      <Badge color={round.status === 'UNDER' ? 'neutral' : round.status === 'OVER' ? 'gold' : 'loss'}>
                         {round.status} ({totalCalls} calls)
                       </Badge>
                       {round.multiplier > 1 && (
-                        <Badge color="big">x{round.multiplier}</Badge>
+                        <Badge color="gold">x{round.multiplier}</Badge>
                       )}
                     </div>
                   </div>

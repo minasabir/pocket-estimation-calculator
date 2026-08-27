@@ -66,7 +66,7 @@ export const Card: React.FC<CardProps> = ({ title, subtitle, extra, children, cl
 
 // Badge Component
 interface BadgeProps {
-  color?: 'suns' | 'big' | 'hearts' | 'karo' | 'treffel' | 'gold' | 'win' | 'loss' | 'neutral';
+  color?: 'suns' | 'spades' | 'hearts' | 'diamonds' | 'clubs' | 'gold' | 'win' | 'loss' | 'neutral';
   children: React.ReactNode;
   className?: string;
 }
@@ -74,10 +74,10 @@ interface BadgeProps {
 export const Badge: React.FC<BadgeProps> = ({ color = 'neutral', children, className = '' }) => {
   const colors = {
     suns: 'bg-spade/10 text-spade border border-spade/25',
-    big: 'bg-gold/15 text-gold-bright border border-gold/40',
+    spades: 'bg-spade/10 text-spade border border-spade/25',
     hearts: 'bg-heart/10 text-heart border border-heart/25',
-    karo: 'bg-diamond/10 text-diamond border border-diamond/25',
-    treffel: 'bg-club/10 text-club border border-club/25',
+    diamonds: 'bg-diamond/10 text-diamond border border-diamond/25',
+    clubs: 'bg-club/10 text-club border border-club/25',
     gold: 'bg-gold/10 text-gold-bright border border-gold',
     win: 'bg-win/15 text-win font-bold',
     loss: 'bg-loss/15 text-loss font-bold',

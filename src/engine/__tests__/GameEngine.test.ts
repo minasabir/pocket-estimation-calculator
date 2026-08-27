@@ -95,10 +95,10 @@ describe('GameEngine', () => {
       const queue = buildInitialQueue(POCKET_DEFAULT_CONFIG, players);
       
       expect(queue[14].mainColor).toBe('SUNS');
-      expect(queue[15].mainColor).toBe('BIG');
+      expect(queue[15].mainColor).toBe('SPADES');
       expect(queue[16].mainColor).toBe('HEARTS');
-      expect(queue[17].mainColor).toBe('KARO');
-      expect(queue[18].mainColor).toBe('TREFFEL');
+      expect(queue[17].mainColor).toBe('DIAMONDS');
+      expect(queue[18].mainColor).toBe('CLUBS');
     });
 
     it('should include players in each round', () => {

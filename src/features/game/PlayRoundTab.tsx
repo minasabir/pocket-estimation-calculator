@@ -52,15 +52,17 @@ export const PlayRoundTab: React.FC<PlayRoundTabProps> = ({
 
   const getColorBadge = (colorName: Color | null) => {
     if (!colorName) return null;
-    const map: Record<Color, { label: string; color: 'suns' | 'big' | 'hearts' | 'karo' | 'treffel' }> = {
-      SUNS: { label: 'Suns (Spades) ♠', color: 'suns' },
-      BIG: { label: 'Big ✦', color: 'big' },
-      HEARTS: { label: 'Hearts ♥', color: 'hearts' },
-      KARO: { label: 'Karo (Diamonds) ♦', color: 'karo' },
-      TREFFEL: { label: 'Treffel (Clubs) ♣', color: 'treffel' },
+    const map: Record<Color, { label: string; color: 'suns' | 'spades' | 'hearts' | 'diamonds' | 'clubs' }> = {
+      SUNS: { label: 'Suns ☀️', color: 'suns' },
+      SPADES: { label: 'Spades ♠️', color: 'spades' },
+      HEARTS: { label: 'Hearts ♥️', color: 'hearts' },
+      DIAMONDS: { label: 'Diamonds ♦️', color: 'diamonds' },
+      CLUBS: { label: 'Clubs ♣️', color: 'clubs' },
     };
-    const details = map[colorName];
-    return <Badge color={details.color}>{details.label}</Badge>;
+    const info = map[colorName];
+    return (
+      <Badge color={info.color as any}>{info.label}</Badge>
+    );
   };
 
   const handleColorChange = () => {
@@ -123,7 +125,7 @@ export const PlayRoundTab: React.FC<PlayRoundTabProps> = ({
         }
         extra={
           <div className="flex flex-col items-end">
-            <Badge color={liveStatus === 'INVALID' ? 'loss' : liveStatus === 'UNDER' ? 'neutral' : 'big'}>
+            <Badge color={liveStatus === 'INVALID' ? 'loss' : liveStatus === 'UNDER' ? 'neutral' : 'gold'}>
               {liveStatus} ({totalCalls} calls)
             </Badge>
             {round.incomingMultiplier > 1 && (
@@ -183,10 +185,10 @@ export const PlayRoundTab: React.FC<PlayRoundTabProps> = ({
                         onChange={(e) => setCcColor(e.target.value as Color)}
                         options={[
                           { value: 'SUNS', label: 'Suns' },
-                          { value: 'BIG', label: 'Big' },
+                          { value: 'SPADES', label: 'Spades' },
                           { value: 'HEARTS', label: 'Hearts' },
-                          { value: 'KARO', label: 'Karo' },
-                          { value: 'TREFFEL', label: 'Treffel' },
+                          { value: 'DIAMONDS', label: 'Diamonds' },
+                          { value: 'CLUBS', label: 'Clubs' },
                         ]}
                       />
                     </div>
@@ -251,11 +253,11 @@ export const PlayRoundTab: React.FC<PlayRoundTabProps> = ({
                       onChange={(e) => onUpdatePlayer(pIdx, { callColor: e.target.value as Color || null })}
                       options={[
                         { value: '', label: 'None' },
-                        { value: 'SUNS', label: 'Suns ♠' },
-                        { value: 'BIG', label: 'Big ✦' },
-                        { value: 'HEARTS', label: 'Hearts ♥' },
-                        { value: 'KARO', label: 'Karo ♦' },
-                        { value: 'TREFFEL', label: 'Treffel ♣' },
+                        { value: 'SUNS', label: 'Suns ☀️' },
+                        { value: 'SPADES', label: 'Spades ♠️' },
+                        { value: 'HEARTS', label: 'Hearts ♥️' },
+                        { value: 'DIAMONDS', label: 'Diamonds ♦️' },
+                        { value: 'CLUBS', label: 'Clubs ♣️' },
                       ]}
                     />
                   </div>

@@ -6,7 +6,7 @@ export const POCKET_DEFAULT_CONFIG: RulesConfig = {
     tricksPerRound: 13,
     normalRounds: 13,
     doubleRounds: 1,
-    colorRounds: ['SUNS', 'BIG', 'HEARTS', 'KARO', 'TREFFEL'],
+    colorRounds: ['SUNS', 'SPADES', 'HEARTS', 'DIAMONDS', 'CLUBS'],
   },
   calls: {
     minimum: 4,

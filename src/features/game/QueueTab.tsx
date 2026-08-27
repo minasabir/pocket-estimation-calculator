@@ -18,12 +18,12 @@ export const QueueTab: React.FC<QueueTabProps> = ({
 
   const colorPillClass = (color: Color | null) => {
     if (!color) return 'neutral';
-    const map: Record<Color, 'suns' | 'big' | 'hearts' | 'karo' | 'treffel'> = {
+    const map: Record<Color, 'suns' | 'spades' | 'hearts' | 'diamonds' | 'clubs'> = {
       SUNS: 'suns',
-      BIG: 'big',
+      SPADES: 'spades',
       HEARTS: 'hearts',
-      KARO: 'karo',
-      TREFFEL: 'treffel',
+      DIAMONDS: 'diamonds',
+      CLUBS: 'clubs',
     };
     return map[color] || 'neutral';
   };
@@ -194,11 +194,11 @@ export const QueueTab: React.FC<QueueTabProps> = ({
                 value={newColor}
                 onChange={(e) => setNewColor(e.target.value as Color)}
                 options={[
-                  { value: 'SUNS', label: 'Suns (Spades)' },
-                  { value: 'BIG', label: 'Big' },
+                  { value: 'SUNS', label: 'Suns' },
+                  { value: 'SPADES', label: 'Spades' },
                   { value: 'HEARTS', label: 'Hearts' },
-                  { value: 'KARO', label: 'Karo (Diamonds)' },
-                  { value: 'TREFFEL', label: 'Treffel (Clubs)' },
+                  { value: 'DIAMONDS', label: 'Diamonds' },
+                  { value: 'CLUBS', label: 'Clubs' },
                 ]}
               />
             )}

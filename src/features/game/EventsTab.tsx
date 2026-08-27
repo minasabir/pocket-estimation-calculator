@@ -24,7 +24,7 @@ export const EventsTab: React.FC<EventsTabProps> = ({ gameState }) => {
       case 'COLOR_ALL_LOSE_BY_TWO':
         return 'hearts';
       case 'SA_AYDEH':
-        return 'big';
+        return 'gold';
       case 'MANUAL_OVERRIDE':
         return 'gold';
       default:

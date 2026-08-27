@@ -23,10 +23,27 @@ export function validateRound(round: Round, config: RulesConfig): string[] {
   const totalActual = computeActualTotal(round);
 
   round.players.forEach((p) => {
+    // DASH and DASH_CALL declarations allow call of 0
+    const isDashDeclaration = p.declaration === 'DASH' || p.declaration === 'DASH_CALL';
+    const isCaller = p.playerId === round.callerPlayerId;
+    
     if (p.call === null) {
       errors.push(`${p.name}: Call is required.`);
-    } else if (p.call < config.calls.minimum || p.call > config.calls.maximum) {
-      errors.push(`${p.name}: Call must be between ${config.calls.minimum} and ${config.calls.maximum}.`);
+    } else if (isDashDeclaration) {
+      // For DASH/DASH_CALL, call must be 0
+      if (p.call !== 0) {
+        errors.push(`${p.name}: Call must be 0 for ${p.declaration} declaration.`);
+      }
+    } else if (isCaller) {
+      // Only the caller must have a call between minimum and maximum
+      if (p.call < config.calls.minimum || p.call > config.calls.maximum) {
+        errors.push(`${p.name}: Caller's call must be between ${config.calls.minimum} and ${config.calls.maximum}.`);
+      }
+    } else {
+      // Non-callers can have any call from 0 to maximum
+      if (p.call < 0 || p.call > config.calls.maximum) {
+        errors.push(`${p.name}: Call must be between 0 and ${config.calls.maximum}.`);
+      }
     }
 
     if (p.actualTricks === null) {

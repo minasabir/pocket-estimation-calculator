@@ -38,18 +38,36 @@ export function calculateRoundScores(round: Round, config: RulesConfig): Round {
   evaluatedRound.players.forEach((player) => {
     const breakdown: ScoreBreakdownItem[] = [];
     const isWin = player.result === 'WIN';
+    const call = player.call ?? 0;
 
-    // 1. Base Score
-    const baseScoreVal = isWin ? config.base.successScore : config.base.failurePenalty;
+    // 1. Call-based Score (Win: call+10 for 1-7, call² for 8-13; Lose: call for 1-7, call*4 for 8-13)
+    let callScore: number;
+    if (isWin) {
+      if (call >= 8) {
+        // Super call: 8→64, 9→81, 10→100, 11→121, 12→144, 13→169
+        callScore = call * call;
+      } else {
+        // Normal call: 1→11, 2→12, 3→13, 4→14, 5→15, 6→16, 7→17
+        callScore = call + 10;
+      }
+    } else {
+      if (call >= 8) {
+        // Super call lose: 8→32, 9→40, 10→50, 11→60, 12→72, 13→84
+        callScore = -(call * 4);
+      } else {
+        // Normal call lose: 1→1, 2→2, 3→3, 4→4, 5→5, 6→6, 7→7
+        callScore = -call;
+      }
+    }
     breakdown.push({
-      type: 'BASE',
-      description: `Base Score (${isWin ? 'WIN' : 'LOSS'})`,
-      amount: baseScoreVal,
+      type: 'CALL_SCORE',
+      description: `Call Score (${call} tricks)`,
+      amount: callScore,
     });
 
-    // 2. Caller Bonus/Penalty
+    // 2. Caller Bonus/Penalty (fixed: win +10, lose -10)
     if (player.isCaller) {
-      const callerVal = isWin ? config.caller.successScore : config.caller.failurePenalty;
+      const callerVal = isWin ? 10 : -10;
       breakdown.push({
         type: 'CALLER',
         description: `Caller ${isWin ? 'Bonus' : 'Penalty'}`,
@@ -57,9 +75,9 @@ export function calculateRoundScores(round: Round, config: RulesConfig): Round {
       });
     }
 
-    // 3. With Bonus/Penalty
+    // 3. With Bonus/Penalty (fixed: win +10, lose -10)
     if (player.isWith) {
-      const withVal = isWin ? config.withRule.successScore : config.withRule.failurePenalty;
+      const withVal = isWin ? 10 : -10;
       breakdown.push({
         type: 'WITH',
         description: `With ${isWin ? 'Bonus' : 'Penalty'}`,

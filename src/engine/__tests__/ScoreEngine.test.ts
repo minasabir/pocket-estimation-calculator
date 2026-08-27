@@ -13,13 +13,13 @@ describe('ScoreEngine', () => {
     currentColor: null,
     colorChanged: false,
     callerPlayerId: 'p1',
-    totalCalls: 12,
+    totalCalls: 16,
     status: 'UNDER',
     players: [
       { playerId: 'p1', name: 'P1', call: 4, callColor: null, actualTricks: 4, result: 'WIN', isCaller: true, isWith: false, declaration: 'NONE', riskLevelId: 'normal', calculatedScore: 0, manualScoreOverride: null, finalScore: 0, scoreBreakdown: [] },
-      { playerId: 'p2', name: 'P2', call: 3, callColor: null, actualTricks: 3, result: 'WIN', isCaller: false, isWith: false, declaration: 'NONE', riskLevelId: 'normal', calculatedScore: 0, manualScoreOverride: null, finalScore: 0, scoreBreakdown: [] },
+      { playerId: 'p2', name: 'P2', call: 4, callColor: null, actualTricks: 4, result: 'WIN', isCaller: false, isWith: false, declaration: 'NONE', riskLevelId: 'normal', calculatedScore: 0, manualScoreOverride: null, finalScore: 0, scoreBreakdown: [] },
       { playerId: 'p3', name: 'P3', call: 4, callColor: null, actualTricks: 3, result: 'LOSS', isCaller: false, isWith: false, declaration: 'NONE', riskLevelId: 'normal', calculatedScore: 0, manualScoreOverride: null, finalScore: 0, scoreBreakdown: [] },
-      { playerId: 'p4', name: 'P4', call: 1, callColor: null, actualTricks: 3, result: 'LOSS', isCaller: false, isWith: false, declaration: 'NONE', riskLevelId: 'normal', calculatedScore: 0, manualScoreOverride: null, finalScore: 0, scoreBreakdown: [] },
+      { playerId: 'p4', name: 'P4', call: 4, callColor: null, actualTricks: 2, result: 'LOSS', isCaller: false, isWith: false, declaration: 'NONE', riskLevelId: 'normal', calculatedScore: 0, manualScoreOverride: null, finalScore: 0, scoreBreakdown: [] },
     ],
     incomingMultiplier: 1,
     multiplier: 1,
@@ -27,59 +27,77 @@ describe('ScoreEngine', () => {
     played: false,
   });
 
-  describe('Base Scoring', () => {
-    it('should calculate base success score for WIN', () => {
+  describe('Call-Based Scoring', () => {
+    it('should calculate call score for WIN (normal call 4 = 14)', () => {
       const round = createBaseRound();
       const result = calculateRoundScores(round, POCKET_DEFAULT_CONFIG);
       
-      expect(result.players[0].calculatedScore).toBeGreaterThan(0);
-      const baseItem = result.players[0].scoreBreakdown.find(item => item.type === 'BASE');
-      expect(baseItem?.amount).toBe(POCKET_DEFAULT_CONFIG.base.successScore);
+      const callScoreItem = result.players[0].scoreBreakdown.find(item => item.type === 'CALL_SCORE');
+      expect(callScoreItem?.amount).toBe(14); // 4 + 10
     });
 
-    it('should calculate base failure penalty for LOSS', () => {
+    it('should calculate call score for LOSS (normal call 4 = -4)', () => {
       const round = createBaseRound();
       const result = calculateRoundScores(round, POCKET_DEFAULT_CONFIG);
       
-      expect(result.players[2].calculatedScore).toBeLessThan(0);
-      const baseItem = result.players[2].scoreBreakdown.find(item => item.type === 'BASE');
-      expect(baseItem?.amount).toBe(POCKET_DEFAULT_CONFIG.base.failurePenalty);
+      const callScoreItem = result.players[2].scoreBreakdown.find(item => item.type === 'CALL_SCORE');
+      expect(callScoreItem?.amount).toBe(-4); // -4
+    });
+
+    it('should calculate super call score for WIN (call 8 = 64)', () => {
+      const round = createBaseRound();
+      round.players[0].call = 8;
+      round.players[0].actualTricks = 8;
+      const result = calculateRoundScores(round, POCKET_DEFAULT_CONFIG);
+      
+      const callScoreItem = result.players[0].scoreBreakdown.find(item => item.type === 'CALL_SCORE');
+      expect(callScoreItem?.amount).toBe(64); // 8 * 8
+    });
+
+    it('should calculate super call score for LOSS (call 8 = -32)', () => {
+      const round = createBaseRound();
+      round.players[2].call = 8;
+      round.players[2].actualTricks = 5;
+      round.players[2].result = 'LOSS';
+      const result = calculateRoundScores(round, POCKET_DEFAULT_CONFIG);
+      
+      const callScoreItem = result.players[2].scoreBreakdown.find(item => item.type === 'CALL_SCORE');
+      expect(callScoreItem?.amount).toBe(-32); // -(8 * 4)
     });
   });
 
   describe('Caller Bonus/Penalty', () => {
-    it('should add caller bonus for winning caller', () => {
+    it('should add caller bonus for winning caller (+10)', () => {
       const round = createBaseRound();
       const result = calculateRoundScores(round, POCKET_DEFAULT_CONFIG);
       
       const callerItem = result.players[0].scoreBreakdown.find(item => item.type === 'CALLER');
-      expect(callerItem?.amount).toBe(POCKET_DEFAULT_CONFIG.caller.successScore);
+      expect(callerItem?.amount).toBe(10);
     });
 
-    it('should add caller penalty for losing caller', () => {
+    it('should add caller penalty for losing caller (-10)', () => {
       const round = createBaseRound();
       round.players[0].result = 'LOSS';
       round.players[0].actualTricks = 3;
-      
       const result = calculateRoundScores(round, POCKET_DEFAULT_CONFIG);
       
       const callerItem = result.players[0].scoreBreakdown.find(item => item.type === 'CALLER');
-      expect(callerItem?.amount).toBe(POCKET_DEFAULT_CONFIG.caller.failurePenalty);
+      expect(callerItem?.amount).toBe(-10);
     });
   });
 
   describe('With Bonus/Penalty', () => {
-    it('should add with bonus for winning with player', () => {
+    it('should add with bonus for winning with player (+10)', () => {
       const round = createBaseRound();
       round.players[1].isWith = true;
       
       const result = calculateRoundScores(round, POCKET_DEFAULT_CONFIG);
       
       const withItem = result.players[1].scoreBreakdown.find(item => item.type === 'WITH');
-      expect(withItem?.amount).toBe(POCKET_DEFAULT_CONFIG.withRule.successScore);
+      expect(withItem?.amount).toBe(10);
     });
 
-    it('should add with penalty for losing with player', () => {
+    it('should add with penalty for losing with player (-10)', () => {
       const round = createBaseRound();
       round.players[1].isWith = true;
       round.players[1].result = 'LOSS';
@@ -88,7 +106,7 @@ describe('ScoreEngine', () => {
       const result = calculateRoundScores(round, POCKET_DEFAULT_CONFIG);
       
       const withItem = result.players[1].scoreBreakdown.find(item => item.type === 'WITH');
-      expect(withItem?.amount).toBe(POCKET_DEFAULT_CONFIG.withRule.failurePenalty);
+      expect(withItem?.amount).toBe(-10);
     });
   });
 
@@ -173,7 +191,7 @@ describe('ScoreEngine', () => {
   });
 
   describe('Only Winner/Loser Bonuses', () => {
-    it('should apply only winner bonus when exactly one player wins', () => {
+    it('should apply only winner bonus when exactly one player wins (+10)', () => {
       const round = createBaseRound();
       round.players[1].result = 'LOSS';
       round.players[1].actualTricks = 2;
@@ -181,10 +199,10 @@ describe('ScoreEngine', () => {
       const result = calculateRoundScores(round, POCKET_DEFAULT_CONFIG);
       
       const onlyWinnerItem = result.players[0].scoreBreakdown.find(item => item.type === 'ONLY_WINNER');
-      expect(onlyWinnerItem?.amount).toBe(POCKET_DEFAULT_CONFIG.onlyWinner.bonus);
+      expect(onlyWinnerItem?.amount).toBe(10);
     });
 
-    it('should apply only loser penalty when exactly one player loses', () => {
+    it('should apply only loser penalty when exactly one player loses (-10)', () => {
       const round = createBaseRound();
       round.players[0].result = 'WIN';
       round.players[1].result = 'LOSS';
@@ -194,7 +212,7 @@ describe('ScoreEngine', () => {
       const result = calculateRoundScores(round, POCKET_DEFAULT_CONFIG);
       
       const onlyLoserItem = result.players[1].scoreBreakdown.find(item => item.type === 'ONLY_LOSER');
-      expect(onlyLoserItem?.amount).toBe(POCKET_DEFAULT_CONFIG.onlyLoser.penalty);
+      expect(onlyLoserItem?.amount).toBe(-10);
     });
   });
 
@@ -252,8 +270,8 @@ describe('ScoreEngine', () => {
       round.players[2].call = 5;
       round.players[2].actualTricks = 5;
       round.players[2].isWith = true;
-      round.players[3].call = 2;
-      round.players[3].actualTricks = 2;
+      round.players[3].call = 4;
+      round.players[3].actualTricks = 3;
       
       // Evaluate round to set proper WIN/LOSS results
       const evaluatedRound = evaluateRound(round, POCKET_DEFAULT_CONFIG);
@@ -275,8 +293,8 @@ describe('ScoreEngine', () => {
       round.players[2].call = 5;
       round.players[2].actualTricks = 5;
       round.players[2].isWith = true;
-      round.players[3].call = 2;
-      round.players[3].actualTricks = 2;
+      round.players[3].call = 4;
+      round.players[3].actualTricks = 3;
       
       const evaluatedRound = evaluateRound(round, POCKET_DEFAULT_CONFIG);
       
@@ -297,8 +315,8 @@ describe('ScoreEngine', () => {
       round.players[1].isWith = true;
       round.players[2].call = 4;
       round.players[2].actualTricks = 4;
-      round.players[3].call = 2;
-      round.players[3].actualTricks = 2;
+      round.players[3].call = 4;
+      round.players[3].actualTricks = 3;
       
       const evaluatedRound = evaluateRound(round, POCKET_DEFAULT_CONFIG);
       

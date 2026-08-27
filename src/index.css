@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background:
+    radial-gradient(1200px 600px at 10% -10%, #1a4536, transparent 60%),
+    radial-gradient(1000px 700px at 110% 10%, #123328, transparent 55%),
+    #0b1f18;
+}
+
+/* Custom card-game style tweaks */
+.custom-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-scroll::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+.custom-scroll::-webkit-scrollbar-thumb {
+  background: rgba(201, 154, 62, 0.3);
+  border-radius: 3px;
+}
+.custom-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(201, 154, 62, 0.5);
+}

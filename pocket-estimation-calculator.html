@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pocket Estimation — Referee</title>
+<style>
+  :root{
+    --felt-0:#0b1f18;
+    --felt-1:#123328;
+    --felt-2:#1a4536;
+    --card:#f6f1e4;
+    --card-dim:#e9e2cd;
+    --ink:#1c2420;
+    --ink-dim:#5c6a62;
+    --gold:#c99a3e;
+    --gold-bright:#e6bb5c;
+    --spade:#20241f;
+    --heart:#a8334c;
+    --diamond:#c47a2c;
+    --club:#2f6b4f;
+    --win:#3f8f5f;
+    --loss:#a8334c;
+    --line:rgba(246,241,228,0.14);
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+    --serif: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 10% -10%, var(--felt-2), transparent 60%),
+      radial-gradient(1000px 700px at 110% 10%, var(--felt-1), transparent 55%),
+      var(--felt-0);
+    color:var(--card);
+    font-family:var(--sans);
+    min-height:100vh;
+    padding-bottom:60px;
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:22px 18px 40px;}
+
+  header.top{
+    display:flex;align-items:flex-end;justify-content:space-between;
+    gap:16px;flex-wrap:wrap;
+    border-bottom:1px solid var(--line);
+    padding-bottom:16px;margin-bottom:18px;
+  }
+  header.top .brand-eyebrow{
+    font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--gold-bright);opacity:.85;margin-bottom:4px;
+  }
+  header.top h1{
+    font-family:var(--serif);font-weight:400;font-size:32px;margin:0;
+    letter-spacing:.01em;
+  }
+  header.top h1 .suit{color:var(--gold-bright);}
+  .multiplier-badge{
+    font-family:var(--mono);font-size:12px;background:rgba(201,154,62,.14);
+    border:1px solid var(--gold);color:var(--gold-bright);
+    padding:6px 10px;border-radius:100px;white-space:nowrap;
+  }
+
+  nav.tabs{
+    display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;
+  }
+  nav.tabs button{
+    font-family:var(--mono);font-size:12px;letter-spacing:.05em;text-transform:uppercase;
+    background:transparent;border:1px solid var(--line);color:var(--card-dim);
+    padding:9px 14px;border-radius:8px;cursor:pointer;transition:.15s;
+  }
+  nav.tabs button:hover{border-color:var(--gold);color:var(--gold-bright);}
+  nav.tabs button.active{
+    background:var(--gold);border-color:var(--gold);color:#231705;font-weight:700;
+  }
+
+  .card{
+    background:var(--card);color:var(--ink);border-radius:12px;
+    padding:20px 22px;margin-bottom:16px;
+    box-shadow:0 8px 24px rgba(0,0,0,.28);
+  }
+  .card h2{font-family:var(--serif);font-size:22px;margin:0 0 4px;font-weight:400;}
+  .card .sub{color:var(--ink-dim);font-size:13px;margin-bottom:16px;}
+  .card h3{font-family:var(--serif);font-weight:400;font-size:17px;margin:22px 0 10px;
+    border-top:1px solid rgba(0,0,0,.08);padding-top:16px;}
+  .card h3:first-of-type{border-top:none;padding-top:0;margin-top:0;}
+
+  .grid{display:grid;gap:12px;}
+  .grid.cols-2{grid-template-columns:1fr 1fr;}
+  .grid.cols-3{grid-template-columns:1fr 1fr 1fr;}
+  .grid.cols-4{grid-template-columns:repeat(4,1fr);}
+  @media (max-width:720px){
+    .grid.cols-2,.grid.cols-3,.grid.cols-4{grid-template-columns:1fr;}
+  }
+
+  label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-dim);margin-bottom:4px;font-weight:600;}
+  input[type=text], input[type=number], select{
+    width:100%;padding:8px 10px;border:1px solid rgba(0,0,0,.18);border-radius:7px;
+    font-family:var(--sans);font-size:14px;background:#fff;color:var(--ink);
+  }
+  input[type=checkbox]{transform:scale(1.15);margin-right:6px;vertical-align:middle;}
+  .field{margin-bottom:10px;}
+  .inline-check{display:flex;align-items:center;font-size:13px;color:var(--ink);text-transform:none;letter-spacing:0;font-weight:500;margin-bottom:6px;}
+
+  button.btn{
+    font-family:var(--sans);font-weight:600;font-size:13.5px;
+    padding:9px 16px;border-radius:8px;border:none;cursor:pointer;
+    background:var(--felt-2);color:var(--card);transition:.15s;
+  }
+  button.btn:hover{background:var(--felt-1);}
+  button.btn.gold{background:var(--gold);color:#231705;}
+  button.btn.gold:hover{background:var(--gold-bright);}
+  button.btn.ghost{background:transparent;border:1px solid rgba(0,0,0,.2);color:var(--ink);}
+  button.btn.ghost:hover{border-color:var(--ink);}
+  button.btn.danger{background:transparent;border:1px solid var(--heart);color:var(--heart);}
+  button.btn.small{padding:5px 10px;font-size:12px;}
+  .btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+
+  table{width:100%;border-collapse:collapse;font-size:14px;}
+  th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-dim);
+     padding:6px 10px;border-bottom:2px solid rgba(0,0,0,.1);}
+  td{padding:8px 10px;border-bottom:1px solid rgba(0,0,0,.07);}
+  tr.win td.result{color:var(--win);font-weight:700;}
+  tr.loss td.result{color:var(--loss);font-weight:700;}
+  .num{font-family:var(--mono);text-align:right;}
+
+  .pill{display:inline-block;font-family:var(--mono);font-size:11px;padding:2px 9px;border-radius:100px;
+    background:rgba(0,0,0,.06);color:var(--ink-dim);}
+  .pill.color-suns{background:rgba(32,36,31,.1);color:#20241f;}
+  .pill.color-hearts{background:rgba(168,51,76,.12);color:var(--heart);}
+  .pill.color-karo{background:rgba(196,122,44,.14);color:var(--diamond);}
+  .pill.color-treffel{background:rgba(47,107,79,.14);color:var(--club);}
+  .pill.color-big{background:rgba(201,154,62,.16);color:#8a6420;}
+  .pill.status-under{background:rgba(47,107,79,.14);color:var(--club);}
+  .pill.status-over{background:rgba(196,122,44,.14);color:var(--diamond);}
+  .pill.status-invalid{background:rgba(168,51,76,.14);color:var(--heart);}
+  .pill.warn{background:rgba(168,51,76,.14);color:var(--heart);font-weight:700;}
+  .pill.override{background:rgba(201,154,62,.22);color:#8a6420;font-weight:700;}
+
+  .queue-row{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;font-size:13.5px;}
+  .queue-row.current{background:rgba(201,154,62,.15);border:1px solid var(--gold);}
+  .queue-row.done{opacity:.55;}
+  .queue-row .n{font-family:var(--mono);color:var(--ink-dim);width:28px;}
+  .queue-row .badges{margin-left:auto;display:flex;gap:6px;}
+
+  .scoreboard-name{font-family:var(--serif);font-size:15px;}
+  .scoreboard-total{font-family:var(--mono);font-weight:700;font-size:18px;}
+
+  .breakdown-line{display:flex;justify-content:space-between;font-family:var(--mono);font-size:13px;
+    padding:3px 0;border-bottom:1px dashed rgba(0,0,0,.08);}
+  .breakdown-line.total{font-weight:700;border-bottom:none;border-top:1px solid rgba(0,0,0,.2);margin-top:4px;padding-top:6px;}
+  .player-block{border:1px solid rgba(0,0,0,.1);border-radius:10px;padding:14px 16px;margin-bottom:12px;}
+  .player-block .head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;}
+  .player-block .head .pname{font-family:var(--serif);font-size:16px;}
+
+  .event-item{font-size:13px;padding:8px 10px;border-left:3px solid var(--gold);background:rgba(0,0,0,.03);
+    margin-bottom:6px;border-radius:4px;}
+  .event-item .tag{font-family:var(--mono);font-size:10px;text-transform:uppercase;color:var(--gold-bright);
+    background:var(--felt-1);padding:1px 6px;border-radius:4px;margin-right:8px;}
+  .event-item{color:var(--ink);}
+  .event-item .tag{color:var(--gold-bright);}
+
+  .empty{color:var(--ink-dim);font-size:13.5px;font-style:italic;padding:20px 0;text-align:center;}
+  .note{font-size:12.5px;color:var(--ink-dim);background:rgba(0,0,0,.04);border-radius:8px;padding:10px 12px;margin-top:10px;line-height:1.5;}
+  .note b{color:var(--ink);}
+  details summary{cursor:pointer;font-size:13px;color:var(--gold-bright);margin-top:4px;}
+  hr.sep{border:none;border-top:1px solid rgba(0,0,0,.08);margin:16px 0;}
+  .flex-between{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+  .small-input{max-width:110px;}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script>
+/* =========================================================================
+   POCKET ESTIMATION — CONFIGURABLE REFEREE / CALCULATOR
+   Architecture: Game State -> Round Manager -> Rule Engine -> Score Calculator
+   No scoring numbers are hard-coded into logic; everything reads CONFIG.
+   ========================================================================= */
+
+/* ---------- Rule Engine assumptions made where the spec left a gap ------
+   These are defaults, all editable in Settings:
+   - Base score on success: flat + per-call component (default: flat 10, per-call 0)
+   - Base penalty on failure: flat + per-difference component (default: flat -10, per-diff 0)
+   - Risk level is chosen per player per round from a configurable list
+     (the spec didn't define what "difference" risk is measured against,
+     so risk is a manual declaration rather than an auto-detected one)
+   - Dash Call: a declared call type with its own success/failure score,
+     independent from Zero From Hand
+   - Zero From Hand success is judged as actual tricks === 0
+   - "With" is auto-detected: non-caller whose call equals the caller's call
+   - Round multiplier (Double Round / Sa'aydeh carry-over) multiplies the
+     sum of all additive components for that round
+------------------------------------------------------------------------- */
+
+const uid = () => Math.random().toString(36).slice(2, 10);
+
+function defaultConfig(){
+  return {
+    game: {
+      players: 4,
+      tricksPerRound: 13,
+      normalRounds: 13,
+      doubleRounds: 1,
+      colorRoundNames: ['Suns (Spades)','Big','Hearts','Karo (Diamonds)','Treffel (Clubs)']
+    },
+    calls: { minimum: 0, maximum: 13 },
+    roundStatus: { underLessThan: 13, overGreaterThan: 13, allowExactly13: false },
+    base: { flatOnSuccess: 10, perCallOnSuccess: 0, flatOnFailure: -10, perDifferenceOnFailure: 0 },
+    caller: { bonus: 10, penalty: -10 },
+    withRule: { bonus: 5, penalty: -5 },
+    risk: { levels: [
+      { id:'normal', name:'Normal',      successBonus:0,  failurePenalty:0   },
+      { id:'risk',   name:'Risk',        successBonus:10, failurePenalty:-10 },
+      { id:'double', name:'Double Risk', successBonus:20, failurePenalty:-20 },
+      { id:'triple', name:'Triple Risk', successBonus:30, failurePenalty:-30 }
+    ]},
+    dash: { successScore:20, failurePenalty:-20, overSuccessScore:null, underSuccessScore:null },
+    zeroFromHand: { underSuccessScore:20, overSuccessScore:10, failurePenalty:-10 },
+    onlyWinner: { enabled:true, bonus:10 },
+    onlyLoser: { enabled:true, penalty:-10 },
+    saaydeh: { enabled:true, firstMultiplier:2, secondMultiplier:4 },
+    doubleRound: { multiplier:2 },
+    colorChange: { enabled:true, minimumCall:8, repeatMainColor:true },
+    colorAllLoseByTwo: { enabled:true, requiredDifference:2, allPlayersMustLose:true, applyOnlyToColorRounds:true, repeatMainColor:true, repeatAtEnd:true }
+  };
+}
+
+function newPlayerRoundState(name){
+  return {
+    name, call:null, actual:null,
+    isDashCall:false, isZeroFromHand:false,
+    riskId:'normal',
+    manualOverride:null,
+    calculated:null,      // computed numeric score
+    breakdown:null,       // array of {label, value}
+    success:null
+  };
+}
+
+function newRound(number, type, mainColor){
+  return {
+    id: uid(),
+    roundNumber: number,
+    type,                       // 'normal' | 'double' | 'color'
+    mainColor: mainColor || null,
+    currentColor: mainColor || null,
+    colorChanged:false,
+    changeInfo:null,            // {byPlayer, call, from, to}
+    addedReason:null,           // null | 'color-change-repeat' | 'all-lose-by-two-repeat'
+    played:false,
+    caller:null,                // player index
+    players: [],                // filled from state.playerNames when round starts
+    status:null,                // 'under' | 'over' | 'invalid'
+    saaydeh:false,
+    incomingMultiplier:1,
+    appliedMultiplier:1,
+    specialEvents:[]
+  };
+}
+
+function buildInitialQueue(config){
+  const rounds = [];
+  let n = 1;
+  for(let i=0;i<config.game.normalRounds;i++) rounds.push(newRound(n++, 'normal'));
+  for(let i=0;i<config.game.doubleRounds;i++) rounds.push(newRound(n++, 'double'));
+  config.game.colorRoundNames.forEach(c => rounds.push(newRound(n++, 'color', c)));
+  return rounds;
+}
+
+function freshState(){
+  const config = defaultConfig();
+  return {
+    config,
+    playerNames: ['Player 1','Player 2','Player 3','Player 4'],
+    totals: [0,0,0,0],
+    rounds: buildInitialQueue(config),
+    currentRoundIndex: 0,
+    pendingMultiplier: 1,
+    lastRoundWasSaaydeh:false,
+    eventLog: [],
+    activeTab: 'play'
+  };
+}
+
+let STATE = freshState();
+
+/* --------------------------- persistence (best-effort) ------------------ */
+async function trySave(){
+  try{
+    if(window.storage){
+      await window.storage.set('pocket-estimation-state', JSON.stringify(STATE), false);
+    }
+  }catch(e){ /* non-fatal */ }
+}
+async function tryLoad(){
+  try{
+    if(window.storage){
+      const res = await window.storage.get('pocket-estimation-state', false);
+      if(res && res.value){
+        const parsed = JSON.parse(res.value);
+        STATE = parsed;
+        window.STATE = STATE;
+        render();
+      }
+    }
+  }catch(e){ /* no saved state yet */ }
+}
+
+/* ============================== RULE ENGINE ============================= */
+
+function computeCallsTotal(round){
+  return round.players.reduce((s,p)=> s + (Number(p.call)||0), 0);
+}
+function computeActualTotal(round){
+  return round.players.reduce((s,p)=> s + (Number(p.actual)||0), 0);
+}
+
+function computeRoundStatus(round, config){
+  const total = computeCallsTotal(round);
+  if(total === 13){
+    return config.roundStatus.allowExactly13 ? 'exact' : 'invalid';
+  }
+  return total < config.roundStatus.underLessThan ? 'under' : 'over';
+}
+
+function isWith(round, player){
+  if(round.caller === null) return false;
+  const callerPlayer = round.players[round.caller];
+  if(!callerPlayer || player === callerPlayer) return false;
+  return player.call !== null && callerPlayer.call !== null && player.call === callerPlayer.call;
+}
+
+/* ============================ SCORE CALCULATOR =========================== */
+
+function calculateBaseScore(player, config){
+  if(player.call === null || player.actual === null) return {label:'Base', value:0};
+  const success = Number(player.call) === Number(player.actual);
+  const diff = Math.abs(Number(player.call) - Number(player.actual));
+  const value = success
+    ? config.base.flatOnSuccess + config.base.perCallOnSuccess * Number(player.call)
+    : config.base.flatOnFailure - config.base.perDifferenceOnFailure * diff;
+  return {label:'Base Score', value};
+}
+
+function calculateCallerScore(round, player, config){
+  const isCaller = round.players[round.caller] === player;
+  if(!isCaller || player.call === null || player.actual === null) return {label:'Caller Bonus', value:0};
+  const success = Number(player.call) === Number(player.actual);
+  return {label: success ? 'Caller Bonus' : 'Caller Penalty', value: success ? config.caller.bonus : config.caller.penalty};
+}
+
+function calculateWithScore(round, player, config){
+  if(!isWith(round, player) || player.call===null || player.actual===null) return {label:'With', value:0};
+  const success = Number(player.call) === Number(player.actual);
+  return {label: success ? 'With Bonus' : 'With Penalty', value: success ? config.withRule.bonus : config.withRule.penalty};
+}
+
+function calculateRiskScore(player, config){
+  if(player.call === null || player.actual === null) return {label:'Risk', value:0};
+  const level = config.risk.levels.find(l=>l.id===player.riskId) || config.risk.levels[0];
+  const success = Number(player.call) === Number(player.actual);
+  const value = success ? level.successBonus : level.failurePenalty;
+  return {label: `${level.name} ${success?'Bonus':'Penalty'}`, value};
+}
+
+function calculateDashScore(round, player, config){
+  if(!player.isDashCall || player.actual === null) return {label:'Dash Call', value:0};
+  const success = Number(player.call) === Number(player.actual);
+  if(!success) return {label:'Dash Call Failure', value: config.dash.failurePenalty};
+  let val = config.dash.successScore;
+  if(round.status === 'over' && config.dash.overSuccessScore !== null) val = config.dash.overSuccessScore;
+  if(round.status === 'under' && config.dash.underSuccessScore !== null) val = config.dash.underSuccessScore;
+  return {label:'Dash Call Success', value: val};
+}
+
+function calculateZeroFromHandScore(round, player, config){
+  if(!player.isZeroFromHand || player.actual === null) return {label:'Zero From Hand', value:0};
+  const success = Number(player.actual) === 0;
+  if(!success) return {label:'Zero From Hand Failure', value: config.zeroFromHand.failurePenalty};
+  const value = round.status === 'under' ? config.zeroFromHand.underSuccessScore : config.zeroFromHand.overSuccessScore;
+  return {label:'Zero From Hand Success', value};
+}
+
+function calculateOnlyWinnerBonus(round, player, config, winnerCount){
+  if(!config.onlyWinner.enabled || winnerCount !== 1) return {label:'Only Winner', value:0};
+  const success = player.call !== null && player.actual !== null && Number(player.call)===Number(player.actual);
+  if(!success) return {label:'Only Winner', value:0};
+  return {label:'Only Winner Bonus', value: config.onlyWinner.bonus};
+}
+
+function calculateOnlyLoserPenalty(round, player, config, loserCount){
+  if(!config.onlyLoser.enabled || loserCount !== 1) return {label:'Only Loser', value:0};
+  const isLoser = player.call !== null && player.actual !== null && Number(player.call)!==Number(player.actual);
+  const totalFailed = round.players.filter(p=> p.call!==null && p.actual!==null && Number(p.call)!==Number(p.actual)).length;
+  if(!isLoser || totalFailed !== 1) return {label:'Only Loser', value:0};
+  return {label:'Only Loser Penalty', value: config.onlyLoser.penalty};
+}
+
+function calculateRoundMultiplier(round, config){
+  let m = 1;
+  if(round.type === 'double') m *= config.doubleRound.multiplier;
+  m *= round.incomingMultiplier || 1;
+  return m;
+}
+
+function calculateFinalRoundScore(round, config){
+  const readyPlayers = round.players.filter(p=>p.call!==null && p.actual!==null);
+  const winnerCount = readyPlayers.filter(p=>Number(p.call)===Number(p.actual)).length;
+  const loserCount = readyPlayers.length - winnerCount;
+  const multiplier = calculateRoundMultiplier(round, config);
+  round.appliedMultiplier = multiplier;
+
+  round.players.forEach(player=>{
+    const allParts = [
+      calculateBaseScore(player, config),
+      calculateCallerScore(round, player, config),
+      calculateWithScore(round, player, config),
+      calculateRiskScore(player, config),
+      calculateDashScore(round, player, config),
+      calculateZeroFromHandScore(round, player, config),
+    ];
+    // Always show Base Score; hide other zero-value components to keep the breakdown readable.
+    const parts = allParts.filter((p,idx)=> idx===0 || p.value !== 0);
+
+    const winnerBonus = calculateOnlyWinnerBonus(round, player, config, winnerCount);
+    const loserPenalty = calculateOnlyLoserPenalty(round, player, config, loserCount);
+    if(winnerBonus.value) parts.push(winnerBonus);
+    if(loserPenalty.value) parts.push(loserPenalty);
+
+    const subtotal = parts.reduce((s,p)=>s+p.value,0);
+    const multiplied = subtotal * multiplier;
+    if(multiplier !== 1){
+      parts.push({label:`Round Multiplier x${multiplier}`, value: multiplied - subtotal});
+    }
+    player.success = player.call!==null && player.actual!==null ? Number(player.call)===Number(player.actual) : null;
+    player.breakdown = parts;
+    player.calculated = Math.round(multiplied);
+  });
+
+  return { winnerCount, loserCount };
+}
+
+/* ============================ ROUND MANAGER ============================== */
+
+function ensurePlayersInitialized(round){
+  if(round.players.length === 0){
+    round.caller = round.caller===null ? 0 : round.caller;
+    round.players = STATE.playerNames.map(n=>newPlayerRoundState(n));
+  }
+}
+
+function logEvent(tag, text){
+  STATE.eventLog.unshift({ tag, text, at: new Date().toLocaleString() });
+}
+
+function applyColorChange(round, playerIndex, newColor, callValue){
+  const config = STATE.config;
+  const from = round.currentColor;
+  round.currentColor = newColor;
+  round.colorChanged = true;
+  round.changeInfo = { byPlayer: STATE.playerNames[playerIndex], call: callValue, from, to: newColor };
+  round.specialEvents.push(`Color changed from ${from} to ${newColor} by ${STATE.playerNames[playerIndex]} (call ${callValue})`);
+  logEvent('COLOR CHANGE', `Round ${round.roundNumber}: ${STATE.playerNames[playerIndex]} changed ${from} → ${newColor} with a call of ${callValue}.`);
+
+  if(config.colorChange.repeatMainColor){
+    const repeat = newRound(nextRoundNumber(), 'color', round.mainColor);
+    repeat.currentColor = round.mainColor;
+    repeat.addedReason = 'color-change-repeat';
+    STATE.rounds.push(repeat);
+    logEvent('ROUND ADDED', `Main color "${round.mainColor}" re-queued at the end (reason: color change in round ${round.roundNumber}).`);
+  }
+}
+
+function nextRoundNumber(){
+  return STATE.rounds.length ? Math.max(...STATE.rounds.map(r=>r.roundNumber)) + 1 : 1;
+}
+
+function maybeScheduleAllLoseByTwo(round, config){
+  if(!config.colorAllLoseByTwo.enabled) return;
+  if(config.colorAllLoseByTwo.applyOnlyToColorRounds && round.type !== 'color') return;
+  const ready = round.players.filter(p=>p.call!==null && p.actual!==null);
+  if(ready.length !== round.players.length) return;
+  const allLost = round.players.every(p=>Number(p.call)!==Number(p.actual));
+  if(config.colorAllLoseByTwo.allPlayersMustLose && !allLost) return;
+  const allByTwo = round.players.every(p=>Math.abs(Number(p.call)-Number(p.actual)) >= config.colorAllLoseByTwo.requiredDifference);
+  if(!allByTwo) return;
+
+  round.specialEvents.push(`All players lost by ${config.colorAllLoseByTwo.requiredDifference}+ — main color "${round.mainColor}" re-queued.`);
+  logEvent('ALL LOSE BY TWO', `Round ${round.roundNumber}: every player missed by ${config.colorAllLoseByTwo.requiredDifference}+ tricks. Main color "${round.mainColor}" re-queued.`);
+
+  const repeat = newRound(nextRoundNumber(), 'color', round.mainColor);
+  repeat.currentColor = round.mainColor;
+  repeat.addedReason = 'all-lose-by-two-repeat';
+  if(config.colorAllLoseByTwo.repeatAtEnd){
+    STATE.rounds.push(repeat);
+  } else {
+    STATE.rounds.splice(STATE.currentRoundIndex+1, 0, repeat);
+  }
+}
+
+function finalizeRound(round){
+  const config = STATE.config;
+  ensurePlayersInitialized(round);
+  round.status = computeRoundStatus(round, config);
+  round.incomingMultiplier = STATE.pendingMultiplier;
+
+  const {winnerCount} = calculateFinalRoundScore(round, config);
+
+  // Sa'aydeh detection + multiplier carry-forward
+  round.saaydeh = winnerCount === 0 && config.saaydeh.enabled;
+  if(round.saaydeh){
+    STATE.pendingMultiplier = STATE.lastRoundWasSaaydeh ? config.saaydeh.secondMultiplier : config.saaydeh.firstMultiplier;
+    STATE.lastRoundWasSaaydeh = true;
+    round.specialEvents.push(`Sa'aydeh — no player succeeded. Next round multiplier: x${STATE.pendingMultiplier}.`);
+    logEvent('SA\'AYDEH', `Round ${round.roundNumber}: all players failed. Next round carries a x${STATE.pendingMultiplier} multiplier.`);
+  } else {
+    STATE.pendingMultiplier = 1;
+    STATE.lastRoundWasSaaydeh = false;
+  }
+
+  maybeScheduleAllLoseByTwo(round, config);
+
+  round.players.forEach(p=>{
+    if(p.manualOverride !== null && p.manualOverride !== '' ){
+      round.specialEvents.push(`Manual override: ${p.name} → ${p.manualOverride}`);
+    }
+  });
+
+  round.played = true;
+  recomputeTotals();
+  trySave();
+}
+
+function finalScoreFor(player){
+  if(player.manualOverride !== null && player.manualOverride !== '' && !isNaN(Number(player.manualOverride))){
+    return Number(player.manualOverride);
+  }
+  return player.calculated || 0;
+}
+
+function recomputeTotals(){
+  const totals = STATE.playerNames.map(()=>0);
+  STATE.rounds.forEach(r=>{
+    if(!r.played) return;
+    r.players.forEach((p,i)=>{ totals[i] += finalScoreFor(p); });
+  });
+  STATE.totals = totals;
+}
+
+/* ================================= UI ==================================== */
+
+function el(html){ const d=document.createElement('div'); d.innerHTML=html.trim(); return d.firstElementChild; }
+function fmt(n){ return (n>0?'+':'') + n; }
+
+function colorPillClass(color){
+  if(!color) return '';
+  const c = color.toLowerCase();
+  if(c.includes('heart')) return 'color-hearts';
+  if(c.includes('karo') || c.includes('diamond')) return 'color-karo';
+  if(c.includes('treffel') || c.includes('club')) return 'color-treffel';
+  if(c.includes('big')) return 'color-big';
+  return 'color-suns';
+}
+
+function render(){
+  const app = document.getElementById('app');
+  app.innerHTML = '';
+  app.appendChild(renderHeader());
+  app.appendChild(renderTabs());
+  const body = document.createElement('div');
+  if(STATE.activeTab==='play') body.appendChild(renderPlayTab());
+  if(STATE.activeTab==='queue') body.appendChild(renderQueueTab());
+  if(STATE.activeTab==='scoreboard') body.appendChild(renderScoreboardTab());
+  if(STATE.activeTab==='history') body.appendChild(renderHistoryTab());
+  if(STATE.activeTab==='log') body.appendChild(renderLogTab());
+  if(STATE.activeTab==='settings') body.appendChild(renderSettingsTab());
+  app.appendChild(body);
+}
+
+function renderHeader(){
+  const remaining = STATE.rounds.filter(r=>!r.played).length;
+  const badge = STATE.pendingMultiplier > 1
+    ? `<span class="multiplier-badge">Next round carries x${STATE.pendingMultiplier} (Sa'aydeh)</span>`
+    : `<span class="multiplier-badge">${remaining} round${remaining===1?'':'s'} remaining</span>`;
+  return el(`
+    <header class="top">
+      <div>
+        <div class="brand-eyebrow">4-Player · Fully Configurable</div>
+        <h1>Pocket Estimation <span class="suit">♠</span> Referee</h1>
+      </div>
+      ${badge}
+    </header>
+  `);
+}
+
+function renderTabs(){
+  const tabs = [
+    ['play','Play Round'],
+    ['queue','Round Queue'],
+    ['scoreboard','Scoreboard'],
+    ['history','History'],
+    ['log','Special Events'],
+    ['settings','Settings'],
+  ];
+  const nav = el(`<nav class="tabs"></nav>`);
+  tabs.forEach(([id,label])=>{
+    const b = el(`<button class="${STATE.activeTab===id?'active':''}">${label}</button>`);
+    b.onclick = ()=>{ STATE.activeTab=id; render(); };
+    nav.appendChild(b);
+  });
+  return nav;
+}
+
+/* ------------------------------ Play Tab --------------------------------- */
+
+function currentRound(){
+  return STATE.rounds[STATE.currentRoundIndex] || null;
+}
+
+function renderPlayTab(){
+  const wrap = document.createElement('div');
+  const round = currentRound();
+  if(!round){
+    wrap.appendChild(el(`<div class="card"><div class="empty">No rounds left in the queue. Add more from the Round Queue tab, or the game is complete.</div></div>`));
+    return wrap;
+  }
+  ensurePlayersInitialized(round);
+
+  const card = el(`<div class="card"></div>`);
+  const callsTotal = computeCallsTotal(round);
+  const actualTotal = computeActualTotal(round);
+  const liveStatus = computeCallsTotal(round) === 13 && !STATE.config.roundStatus.allowExactly13 ? 'invalid' : (callsTotal < 13 ? 'under' : callsTotal > 13 ? 'over' : 'exact');
+
+  card.appendChild(el(`
+    <div class="flex-between">
+      <div>
+        <h2>Round ${round.roundNumber} <span class="pill">${round.type}</span>
+        ${round.mainColor ? `<span class="pill ${colorPillClass(round.currentColor)}">${round.currentColor}</span>` : ''}
+        </h2>
+        <div class="sub">
+          ${round.mainColor ? `Main color: <b>${round.mainColor}</b>${round.colorChanged ? ` — currently playing <b>${round.currentColor}</b>` : ''}` : 'Standard round'}
+          ${round.addedReason ? ` · <i>added because: ${round.addedReason.replace(/-/g,' ')}</i>` : ''}
+        </div>
+      </div>
+      <span class="pill status-${liveStatus}">${liveStatus.toUpperCase()} (${callsTotal}/13 called)</span>
+    </div>
+  `));
+
+  // Caller select
+  const callerField = el(`
+    <div class="field" style="max-width:260px;margin-top:14px;">
+      <label>Caller</label>
+      <select id="callerSelect">
+        ${STATE.playerNames.map((n,i)=>`<option value="${i}" ${round.caller===i?'selected':''}>${n}</option>`).join('')}
+      </select>
+    </div>
+  `);
+  callerField.querySelector('select').onchange = (e)=>{ round.caller = Number(e.target.value); render(); };
+  card.appendChild(callerField);
+
+  // Color round tools
+  if(round.type === 'color'){
+    card.appendChild(renderColorChangeTools(round));
+  }
+
+  card.appendChild(el(`<h3>Player Entries</h3>`));
+  const grid = el(`<div class="grid cols-2"></div>`);
+  round.players.forEach((p,i)=>{
+    grid.appendChild(renderPlayerEntry(round, p, i));
+  });
+  card.appendChild(grid);
+
+  const riskLevelNote = `<div class="note"><b>Risk</b> is a manual declaration per player (choose the level that applies) since the source rules didn't fix what "risk difference" is measured against — thresholds shown are editable in Settings.</div>`;
+  card.appendChild(el(riskLevelNote));
+
+  const btnRow = el(`<div class="btn-row"></div>`);
+  const finalizeBtn = el(`<button class="btn gold">Calculate &amp; Finalize Round</button>`);
+  finalizeBtn.onclick = ()=>{
+    const validation = validateRound(round);
+    if(validation.length){
+      alert('Cannot finalize round:\n\n' + validation.join('\n'));
+      return;
+    }
+    finalizeRound(round);
+    STATE.currentRoundIndex++;
+    render();
+  };
+  btnRow.appendChild(finalizeBtn);
+
+  if(round.played){
+    const redoBtn = el(`<button class="btn ghost">Recalculate</button>`);
+    redoBtn.onclick = ()=>{ finalizeRound(round); render(); };
+    btnRow.appendChild(redoBtn);
+  }
+  card.appendChild(btnRow);
+
+  if(round.played){
+    card.appendChild(el(`<hr class="sep"/>`));
+    card.appendChild(renderBreakdown(round));
+  }
+
+  wrap.appendChild(card);
+  return wrap;
+}
+
+function renderColorChangeTools(round){
+  const box = el(`<div class="note" style="margin-top:12px;"></div>`);
+  box.innerHTML = `<b>Color Change</b> — any player calling ${STATE.config.colorChange.minimumCall}+ may switch the active color. Recording a change re-queues the main color ("${round.mainColor}") for later.`;
+  if(!STATE.config.colorChange.enabled){
+    box.innerHTML += ' <i>(disabled in Settings)</i>';
+    return box;
+  }
+  const form = el(`
+    <div class="grid cols-3" style="margin-top:10px;">
+      <div class="field">
+        <label>Player</label>
+        <select id="ccPlayer">${STATE.playerNames.map((n,i)=>`<option value="${i}">${n}</option>`).join('')}</select>
+      </div>
+      <div class="field">
+        <label>Call (must be ≥ ${STATE.config.colorChange.minimumCall})</label>
+        <input type="number" id="ccCall" min="${STATE.config.colorChange.minimumCall}" max="${STATE.config.calls.maximum}"/>
+      </div>
+      <div class="field">
+        <label>New Color</label>
+        <select id="ccColor">${STATE.config.game.colorRoundNames.map(c=>`<option value="${c}" ${c===round.currentColor?'selected':''}>${c}</option>`).join('')}</select>
+      </div>
+    </div>
+    <button class="btn small ghost" id="ccApply">Record Color Change</button>
+  `);
+  box.appendChild(form);
+  form.querySelector('#ccApply').onclick = ()=>{
+    const pi = Number(form.querySelector('#ccPlayer').value);
+    const call = Number(form.querySelector('#ccCall').value);
+    const color = form.querySelector('#ccColor').value;
+    if(!call || call < STATE.config.colorChange.minimumCall){
+      alert(`Color Change requires a call of ${STATE.config.colorChange.minimumCall} or higher.`);
+      return;
+    }
+    if(color === round.currentColor){
+      alert('Pick a different color to switch to.');
+      return;
+    }
+    applyColorChange(round, pi, color, call);
+    round.players[pi].call = call;
+    render();
+  };
+  return box;
+}
+
+function renderPlayerEntry(round, p, i){
+  const box = el(`<div class="player-block"></div>`);
+  box.innerHTML = `
+    <div class="head">
+      <span class="pname">${p.name}${round.caller===i?' <span class="pill">Caller</span>':''}${isWith(round,p)?' <span class="pill">With</span>':''}</span>
+    </div>
+    <div class="grid cols-2">
+      <div class="field">
+        <label>Call</label>
+        <input type="number" class="callInput" min="${STATE.config.calls.minimum}" max="${STATE.config.calls.maximum}" value="${p.call ?? ''}"/>
+      </div>
+      <div class="field">
+        <label>Actual Tricks</label>
+        <input type="number" class="actualInput" min="0" max="13" value="${p.actual ?? ''}"/>
+      </div>
+    </div>
+    <div class="grid cols-2">
+      <div class="field">
+        <label class="inline-check"><input type="checkbox" class="dashCheck" ${p.isDashCall?'checked':''}/> Dash Call</label>
+        <label class="inline-check"><input type="checkbox" class="zfhCheck" ${p.isZeroFromHand?'checked':''}/> Zero From Hand</label>
+      </div>
+      <div class="field">
+        <label>Risk Level</label>
+        <select class="riskSelect">
+          ${STATE.config.risk.levels.map(l=>`<option value="${l.id}" ${p.riskId===l.id?'selected':''}>${l.name}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Manual Override (optional)</label>
+      <input type="number" class="overrideInput small-input" value="${p.manualOverride ?? ''}" placeholder="—"/>
+    </div>
+  `;
+  box.querySelector('.callInput').oninput = e=>{ p.call = e.target.value===''?null:Number(e.target.value); render(); };
+  box.querySelector('.actualInput').oninput = e=>{ p.actual = e.target.value===''?null:Number(e.target.value); render(); };
+  box.querySelector('.dashCheck').onchange = e=>{ p.isDashCall = e.target.checked; if(p.isDashCall) p.isZeroFromHand=false; render(); };
+  box.querySelector('.zfhCheck').onchange = e=>{ p.isZeroFromHand = e.target.checked; if(p.isZeroFromHand) p.isDashCall=false; render(); };
+  box.querySelector('.riskSelect').onchange = e=>{ p.riskId = e.target.value; };
+  box.querySelector('.overrideInput').oninput = e=>{ p.manualOverride = e.target.value===''?null:e.target.value; };
+  return box;
+}
+
+function validateRound(round){
+  const errs = [];
+  const cfg = STATE.config;
+  round.players.forEach(p=>{
+    if(p.call === null) errs.push(`${p.name}: call is required.`);
+    if(p.actual === null) errs.push(`${p.name}: actual tricks is required.`);
+    if(p.call !== null && (p.call < cfg.calls.minimum || p.call > cfg.calls.maximum)) errs.push(`${p.name}: call must be between ${cfg.calls.minimum} and ${cfg.calls.maximum}.`);
+    if(p.actual !== null && (p.actual < 0 || p.actual > 13)) errs.push(`${p.name}: actual tricks must be between 0 and 13.`);
+  });
+  if(errs.length) return errs;
+  const callsTotal = computeCallsTotal(round);
+  if(callsTotal === 13 && !cfg.roundStatus.allowExactly13) errs.push(`Total calls cannot equal 13 (currently ${callsTotal}).`);
+  const actualTotal = computeActualTotal(round);
+  if(actualTotal !== 13) errs.push(`Actual tricks must sum to 13 (currently ${actualTotal}).`);
+  return errs;
+}
+
+function renderBreakdown(round){
+  const box = document.createElement('div');
+  box.appendChild(el(`<h3>Score Breakdown ${round.appliedMultiplier>1?`<span class="pill override">Round Multiplier x${round.appliedMultiplier}</span>`:''}</h3>`));
+  round.players.forEach(p=>{
+    const pb = el(`<div class="player-block"></div>`);
+    const finalScore = finalScoreFor(p);
+    const overridden = p.manualOverride !== null && p.manualOverride !== '';
+    pb.innerHTML = `
+      <div class="head">
+        <span class="pname">${p.name}</span>
+        <span class="pill ${p.success?'status-under':'status-invalid'}">${p.success?'WIN':'LOSS'}</span>
+      </div>
+      <div style="font-size:13px;color:var(--ink-dim);margin-bottom:6px;">Call ${p.call} · Actual ${p.actual}${p.isDashCall?' · Dash Call':''}${p.isZeroFromHand?' · Zero From Hand':''}</div>
+    `;
+    (p.breakdown||[]).forEach(b=>{
+      pb.appendChild(el(`<div class="breakdown-line"><span>${b.label}</span><span>${fmt(b.value)}</span></div>`));
+    });
+    pb.appendChild(el(`<div class="breakdown-line total"><span>${overridden?'Manual Override':'Final Score'}</span><span>${fmt(finalScore)}</span></div>`));
+    if(overridden) pb.appendChild(el(`<div style="margin-top:4px;"><span class="pill override">Overridden — calculated was ${fmt(p.calculated)}</span></div>`));
+    box.appendChild(pb);
+  });
+  if(round.specialEvents.length){
+    box.appendChild(el(`<h3>Special Events This Round</h3>`));
+    round.specialEvents.forEach(ev=> box.appendChild(el(`<div class="event-item">${ev}</div>`)));
+  }
+  return box;
+}
+
+/* ------------------------------ Queue Tab --------------------------------- */
+
+function renderQueueTab(){
+  const wrap = document.createElement('div');
+  const card = el(`<div class="card"><h2>Round Queue</h2><div class="sub">Dynamic — grows automatically from Color Changes and special rules. Drag not supported here; use the controls to reorder unplayed rounds.</div></div>`);
+
+  STATE.rounds.forEach((r,idx)=>{
+    const row = el(`
+      <div class="queue-row ${idx===STATE.currentRoundIndex?'current':''} ${r.played?'done':''}">
+        <span class="n">#${r.roundNumber}</span>
+        <span class="pill">${r.type}</span>
+        ${r.mainColor?`<span class="pill ${colorPillClass(r.currentColor)}">${r.currentColor}</span>`:''}
+        ${r.colorChanged?`<span class="pill warn">changed</span>`:''}
+        ${r.addedReason?`<span class="pill">added: ${r.addedReason.replace(/-/g,' ')}</span>`:''}
+        <span class="badges">
+          ${r.played? '<span class="pill">played</span>' : ''}
+        </span>
+      </div>
+    `);
+    if(!r.played){
+      const controls = el(`<span style="margin-left:auto;display:flex;gap:6px;"></span>`);
+      const up = el(`<button class="btn small ghost">↑</button>`);
+      const down = el(`<button class="btn small ghost">↓</button>`);
+      const del = el(`<button class="btn small danger">✕</button>`);
+      up.onclick = ()=>{ if(idx>0 && !STATE.rounds[idx-1].played){ [STATE.rounds[idx-1],STATE.rounds[idx]]=[STATE.rounds[idx],STATE.rounds[idx-1]]; render(); } };
+      down.onclick = ()=>{ if(idx<STATE.rounds.length-1){ [STATE.rounds[idx+1],STATE.rounds[idx]]=[STATE.rounds[idx],STATE.rounds[idx+1]]; render(); } };
+      del.onclick = ()=>{ if(confirm('Remove this round from the queue?')){ STATE.rounds.splice(idx,1); if(STATE.currentRoundIndex>=idx) STATE.currentRoundIndex=Math.max(0,STATE.currentRoundIndex-1); render(); } };
+      controls.append(up,down,del);
+      row.appendChild(controls);
+    }
+    card.appendChild(row);
+  });
+
+  const addRow = el(`
+    <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;align-items:end;">
+      <div class="field" style="margin:0;">
+        <label>Add Round Type</label>
+        <select id="addType">
+          <option value="normal">Normal</option>
+          <option value="double">Double</option>
+          <option value="color">Color</option>
+        </select>
+      </div>
+      <div class="field" id="addColorWrap" style="margin:0;">
+        <label>Color</label>
+        <select id="addColor">${STATE.config.game.colorRoundNames.map(c=>`<option>${c}</option>`).join('')}</select>
+      </div>
+      <button class="btn gold" id="addRoundBtn">Add Round to End</button>
+    </div>
+  `);
+  addRow.querySelector('#addRoundBtn').onclick = ()=>{
+    const type = addRow.querySelector('#addType').value;
+    const color = addRow.querySelector('#addColor').value;
+    STATE.rounds.push(newRound(nextRoundNumber(), type, type==='color'?color:null));
+    render();
+  };
+  card.appendChild(addRow);
+
+  wrap.appendChild(card);
+
+  const playersCard = el(`<div class="card"><h2>Players</h2><div class="sub">Rename to match your table.</div></div>`);
+  const pgrid = el(`<div class="grid cols-4"></div>`);
+  STATE.playerNames.forEach((n,i)=>{
+    const f = el(`<div class="field"><label>Player ${i+1}</label><input type="text" value="${n}"/></div>`);
+    f.querySelector('input').oninput = e=>{ STATE.playerNames[i]=e.target.value; STATE.rounds.forEach(r=>{ if(r.players[i]) r.players[i].name=e.target.value; }); render(); };
+    pgrid.appendChild(f);
+  });
+  playersCard.appendChild(pgrid);
+  wrap.appendChild(playersCard);
+
+  return wrap;
+}
+
+/* ---------------------------- Scoreboard Tab ------------------------------ */
+
+function renderScoreboardTab(){
+  const wrap = document.createElement('div');
+  const card = el(`<div class="card"><h2>Scoreboard</h2></div>`);
+  const table = el(`<table><thead><tr><th>Player</th><th class="num">Total</th></tr></thead><tbody></tbody></table>`);
+  const tbody = table.querySelector('tbody');
+  const ranked = STATE.playerNames.map((n,i)=>({n,i,t:STATE.totals[i]||0})).sort((a,b)=>b.t-a.t);
+  ranked.forEach(r=>{
+    tbody.appendChild(el(`<tr><td class="scoreboard-name">${r.n}</td><td class="num scoreboard-total">${fmt(r.t)}</td></tr>`));
+  });
+  card.appendChild(table);
+
+  const played = STATE.rounds.filter(r=>r.played);
+  const normalDone = played.filter(r=>r.type==='normal').length;
+  const doubleDone = played.filter(r=>r.type==='double').length;
+  const colorDone = played.filter(r=>r.type==='color').length;
+  const added = STATE.rounds.filter(r=>r.addedReason).length;
+  const cur = currentRound();
+
+  card.appendChild(el(`<hr class="sep"/>`));
+  card.appendChild(el(`
+    <div class="grid cols-3" style="font-size:13.5px;">
+      <div><b>Current round:</b> ${cur? '#'+cur.roundNumber+' ('+cur.type+')' : 'Game complete'}</div>
+      <div><b>Remaining rounds:</b> ${STATE.rounds.filter(r=>!r.played).length}</div>
+      <div><b>Total rounds so far:</b> ${STATE.rounds.length}</div>
+      <div><b>Normal completed:</b> ${normalDone}</div>
+      <div><b>Double completed:</b> ${doubleDone}</div>
+      <div><b>Color completed:</b> ${colorDone}</div>
+      <div><b>Added/repeated rounds:</b> ${added}</div>
+      <div><b>Current color:</b> ${cur?.currentColor || '—'}</div>
+      <div><b>Main color:</b> ${cur?.mainColor || '—'}</div>
+      <div><b>Next-round multiplier:</b> x${STATE.pendingMultiplier}</div>
+      <div><b>Last round Sa'aydeh:</b> ${STATE.lastRoundWasSaaydeh?'Yes':'No'}</div>
+    </div>
+  `));
+  wrap.appendChild(card);
+  return wrap;
+}
+
+/* ------------------------------ History Tab -------------------------------- */
+
+function renderHistoryTab(){
+  const wrap = document.createElement('div');
+  const played = STATE.rounds.filter(r=>r.played);
+  if(!played.length){
+    wrap.appendChild(el(`<div class="card"><div class="empty">No rounds played yet.</div></div>`));
+    return wrap;
+  }
+  played.slice().reverse().forEach(r=>{
+    const card = el(`<div class="card"></div>`);
+    card.appendChild(el(`
+      <div class="flex-between">
+        <h2>Round ${r.roundNumber} <span class="pill">${r.type}</span> ${r.mainColor?`<span class="pill ${colorPillClass(r.currentColor)}">${r.currentColor}</span>`:''}</h2>
+        <span class="pill status-${r.status}">${(r.status||'').toUpperCase()}</span>
+      </div>
+    `));
+    const table = el(`<table><thead><tr><th>Player</th><th class="num">Call</th><th class="num">Actual</th><th>Result</th><th class="num">Score</th></tr></thead><tbody></tbody></table>`);
+    const tbody = table.querySelector('tbody');
+    r.players.forEach(p=>{
+      tbody.appendChild(el(`<tr class="${p.success?'win':'loss'}"><td>${p.name}</td><td class="num">${p.call}</td><td class="num">${p.actual}</td><td class="result">${p.success?'WIN':'LOSS'}</td><td class="num">${fmt(finalScoreFor(p))}</td></tr>`));
+    });
+    card.appendChild(table);
+    if(r.specialEvents.length){
+      const det = el(`<details><summary>Special events (${r.specialEvents.length})</summary></details>`);
+      r.specialEvents.forEach(ev=> det.appendChild(el(`<div class="event-item">${ev}</div>`)));
+      card.appendChild(det);
+    }
+    const editBtn = el(`<button class="btn ghost small" style="margin-top:12px;">Edit This Round</button>`);
+    editBtn.onclick = ()=>{ STATE.currentRoundIndex = STATE.rounds.indexOf(r); r.played=false; STATE.activeTab='play'; render(); };
+    card.appendChild(editBtn);
+    wrap.appendChild(card);
+  });
+  return wrap;
+}
+
+/* -------------------------------- Log Tab ---------------------------------- */
+
+function renderLogTab(){
+  const wrap = document.createElement('div');
+  const card = el(`<div class="card"><h2>Special Event Log</h2><div class="sub">Every Color Change, Sa'aydeh, added round, and manual override, in order.</div></div>`);
+  if(!STATE.eventLog.length){
+    card.appendChild(el(`<div class="empty">No special events yet.</div>`));
+  } else {
+    STATE.eventLog.forEach(e=>{
+      card.appendChild(el(`<div class="event-item"><span class="tag">${e.tag}</span>${e.text}</div>`));
+    });
+  }
+  wrap.appendChild(card);
+  return wrap;
+}
+
+/* ------------------------------ Settings Tab -------------------------------- */
+
+function numField(label, getVal, setVal, opts){
+  opts = opts || {};
+  const f = el(`<div class="field"><label>${label}</label><input type="number" ${opts.step?`step="${opts.step}"`:''} value="${getVal()}"/></div>`);
+  f.querySelector('input').oninput = e=>{ setVal(Number(e.target.value)); trySave(); };
+  return f;
+}
+function boolField(label, getVal, setVal){
+  const f = el(`<label class="inline-check" style="margin-bottom:10px;"><input type="checkbox" ${getVal()?'checked':''}/> ${label}</label>`);
+  f.querySelector('input').onchange = e=>{ setVal(e.target.checked); render(); };
+  return f;
+}
+
+function renderSettingsTab(){
+  const wrap = document.createElement('div');
+  const cfg = STATE.config;
+
+  const general = el(`<div class="card"><h2>General</h2><div class="sub">Structural counts — changes here only affect newly generated queues.</div></div>`);
+  const g = el(`<div class="grid cols-3"></div>`);
+  g.appendChild(numField('Normal Rounds', ()=>cfg.game.normalRounds, v=>cfg.game.normalRounds=v));
+  g.appendChild(numField('Double Rounds', ()=>cfg.game.doubleRounds, v=>cfg.game.doubleRounds=v));
+  g.appendChild(numField('Tricks Per Round', ()=>cfg.game.tricksPerRound, v=>cfg.game.tricksPerRound=v));
+  general.appendChild(g);
+  const rebuildBtn = el(`<button class="btn ghost" style="margin-top:12px;">Rebuild Queue From These Counts</button>`);
+  rebuildBtn.onclick = ()=>{
+    if(confirm('This replaces the entire round queue and clears progress. Continue?')){
+      STATE.rounds = buildInitialQueue(cfg);
+      STATE.currentRoundIndex = 0;
+      recomputeTotals();
+      render();
+    }
+  };
+  general.appendChild(rebuildBtn);
+  wrap.appendChild(general);
+
+  const calls = el(`<div class="card"><h2>Calls &amp; Round Status</h2></div>`);
+  const cGrid = el(`<div class="grid cols-3"></div>`);
+  cGrid.appendChild(numField('Minimum Call', ()=>cfg.calls.minimum, v=>cfg.calls.minimum=v));
+  cGrid.appendChild(numField('Maximum Call', ()=>cfg.calls.maximum, v=>cfg.calls.maximum=v));
+  cGrid.appendChild(numField('Under Threshold (< this)', ()=>cfg.roundStatus.underLessThan, v=>cfg.roundStatus.underLessThan=v));
+  calls.appendChild(cGrid);
+  calls.appendChild(boolField('Allow total calls to equal 13', ()=>cfg.roundStatus.allowExactly13, v=>cfg.roundStatus.allowExactly13=v));
+  wrap.appendChild(calls);
+
+  const base = el(`<div class="card"><h2>Base Scoring</h2><div class="sub">Applied to every player's own call vs. actual result.</div></div>`);
+  const bGrid = el(`<div class="grid cols-2"></div>`);
+  bGrid.appendChild(numField('Flat Score on Success', ()=>cfg.base.flatOnSuccess, v=>cfg.base.flatOnSuccess=v));
+  bGrid.appendChild(numField('Extra Per Call on Success', ()=>cfg.base.perCallOnSuccess, v=>cfg.base.perCallOnSuccess=v));
+  bGrid.appendChild(numField('Flat Penalty on Failure', ()=>cfg.base.flatOnFailure, v=>cfg.base.flatOnFailure=v));
+  bGrid.appendChild(numField('Extra Penalty Per Trick of Difference', ()=>cfg.base.perDifferenceOnFailure, v=>cfg.base.perDifferenceOnFailure=v));
+  base.appendChild(bGrid);
+  wrap.appendChild(base);
+
+  const caller = el(`<div class="card"><h2>Caller &amp; With</h2></div>`);
+  const clGrid = el(`<div class="grid cols-2"></div>`);
+  clGrid.appendChild(numField('Caller Bonus', ()=>cfg.caller.bonus, v=>cfg.caller.bonus=v));
+  clGrid.appendChild(numField('Caller Penalty', ()=>cfg.caller.penalty, v=>cfg.caller.penalty=v));
+  clGrid.appendChild(numField('With Bonus', ()=>cfg.withRule.bonus, v=>cfg.withRule.bonus=v));
+  clGrid.appendChild(numField('With Penalty', ()=>cfg.withRule.penalty, v=>cfg.withRule.penalty=v));
+  caller.appendChild(clGrid);
+  wrap.appendChild(caller);
+
+  const risk = el(`<div class="card"><h2>Risk Levels</h2><div class="sub">Add, edit, or remove risk tiers. Players pick a level manually when entering a round.</div></div>`);
+  cfg.risk.levels.forEach((lvl,idx)=>{
+    const row = el(`<div class="grid cols-4" style="align-items:end;"></div>`);
+    const nameF = el(`<div class="field"><label>Name</label><input type="text" value="${lvl.name}"/></div>`);
+    nameF.querySelector('input').oninput=e=>lvl.name=e.target.value;
+    row.appendChild(nameF);
+    row.appendChild(numField('Success Bonus', ()=>lvl.successBonus, v=>lvl.successBonus=v));
+    row.appendChild(numField('Failure Penalty', ()=>lvl.failurePenalty, v=>lvl.failurePenalty=v));
+    const delBtn = el(`<button class="btn danger small">Remove</button>`);
+    delBtn.onclick = ()=>{ cfg.risk.levels.splice(idx,1); render(); };
+    row.appendChild(delBtn);
+    risk.appendChild(row);
+  });
+  const addRiskBtn = el(`<button class="btn ghost small" style="margin-top:8px;">+ Add Risk Level</button>`);
+  addRiskBtn.onclick = ()=>{ cfg.risk.levels.push({id:uid(), name:'New Level', successBonus:0, failurePenalty:0}); render(); };
+  risk.appendChild(addRiskBtn);
+  wrap.appendChild(risk);
+
+  const dashCard = el(`<div class="card"><h2>Dash Call</h2><div class="sub">A special declared call, distinct from Zero From Hand.</div></div>`);
+  const dGrid = el(`<div class="grid cols-2"></div>`);
+  dGrid.appendChild(numField('Success Score (default)', ()=>cfg.dash.successScore, v=>cfg.dash.successScore=v));
+  dGrid.appendChild(numField('Failure Penalty', ()=>cfg.dash.failurePenalty, v=>cfg.dash.failurePenalty=v));
+  dGrid.appendChild(numField('Success Score if Over (blank = use default)', ()=>cfg.dash.overSuccessScore ?? '', v=>cfg.dash.overSuccessScore=v));
+  dGrid.appendChild(numField('Success Score if Under (blank = use default)', ()=>cfg.dash.underSuccessScore ?? '', v=>cfg.dash.underSuccessScore=v));
+  dashCard.appendChild(dGrid);
+  wrap.appendChild(dashCard);
+
+  const zfhCard = el(`<div class="card"><h2>Zero From Hand</h2><div class="sub">Separate from Dash Call. Judged here as the player taking exactly 0 actual tricks.</div></div>`);
+  const zGrid = el(`<div class="grid cols-3"></div>`);
+  zGrid.appendChild(numField('Success Score (Under)', ()=>cfg.zeroFromHand.underSuccessScore, v=>cfg.zeroFromHand.underSuccessScore=v));
+  zGrid.appendChild(numField('Success Score (Over)', ()=>cfg.zeroFromHand.overSuccessScore, v=>cfg.zeroFromHand.overSuccessScore=v));
+  zGrid.appendChild(numField('Failure Penalty', ()=>cfg.zeroFromHand.failurePenalty, v=>cfg.zeroFromHand.failurePenalty=v));
+  zfhCard.appendChild(zGrid);
+  wrap.appendChild(zfhCard);
+
+  const wlCard = el(`<div class="card"><h2>Only Winner / Only Loser</h2></div>`);
+  wlCard.appendChild(boolField('Only Winner enabled', ()=>cfg.onlyWinner.enabled, v=>cfg.onlyWinner.enabled=v));
+  const wlGrid = el(`<div class="grid cols-2"></div>`);
+  wlGrid.appendChild(numField('Only Winner Bonus', ()=>cfg.onlyWinner.bonus, v=>cfg.onlyWinner.bonus=v));
+  wlGrid.appendChild(numField('Only Loser Penalty', ()=>cfg.onlyLoser.penalty, v=>cfg.onlyLoser.penalty=v));
+  wlCard.appendChild(wlGrid);
+  wlCard.appendChild(boolField('Only Loser enabled', ()=>cfg.onlyLoser.enabled, v=>cfg.onlyLoser.enabled=v));
+  wrap.appendChild(wlCard);
+
+  const saaydehCard = el(`<div class="card"><h2>Sa'aydeh (All Fail)</h2></div>`);
+  saaydehCard.appendChild(boolField("Sa'aydeh enabled", ()=>cfg.saaydeh.enabled, v=>cfg.saaydeh.enabled=v));
+  const sGrid = el(`<div class="grid cols-2"></div>`);
+  sGrid.appendChild(numField('First Multiplier', ()=>cfg.saaydeh.firstMultiplier, v=>cfg.saaydeh.firstMultiplier=v));
+  sGrid.appendChild(numField('Second Consecutive Multiplier', ()=>cfg.saaydeh.secondMultiplier, v=>cfg.saaydeh.secondMultiplier=v));
+  saaydehCard.appendChild(sGrid);
+  wrap.appendChild(saaydehCard);
+
+  const drCard = el(`<div class="card"><h2>Double Round</h2></div>`);
+  drCard.appendChild(numField('Multiplier', ()=>cfg.doubleRound.multiplier, v=>cfg.doubleRound.multiplier=v));
+  wrap.appendChild(drCard);
+
+  const ccCard = el(`<div class="card"><h2>Color Change</h2></div>`);
+  ccCard.appendChild(boolField('Color Change enabled', ()=>cfg.colorChange.enabled, v=>cfg.colorChange.enabled=v));
+  const ccGrid = el(`<div class="grid cols-2"></div>`);
+  ccGrid.appendChild(numField('Minimum Call to Trigger', ()=>cfg.colorChange.minimumCall, v=>cfg.colorChange.minimumCall=v));
+  ccCard.appendChild(ccGrid);
+  ccCard.appendChild(boolField('Repeat main color round afterward', ()=>cfg.colorChange.repeatMainColor, v=>cfg.colorChange.repeatMainColor=v));
+  wrap.appendChild(ccCard);
+
+  const albtCard = el(`<div class="card"><h2>Color: All Lose By Two</h2></div>`);
+  albtCard.appendChild(boolField('Enabled', ()=>cfg.colorAllLoseByTwo.enabled, v=>cfg.colorAllLoseByTwo.enabled=v));
+  const albtGrid = el(`<div class="grid cols-2"></div>`);
+  albtGrid.appendChild(numField('Required Difference', ()=>cfg.colorAllLoseByTwo.requiredDifference, v=>cfg.colorAllLoseByTwo.requiredDifference=v));
+  albtCard.appendChild(albtGrid);
+  albtCard.appendChild(boolField('All 4 players must lose', ()=>cfg.colorAllLoseByTwo.allPlayersMustLose, v=>cfg.colorAllLoseByTwo.allPlayersMustLose=v));
+  albtCard.appendChild(boolField('Applies only to Color Rounds', ()=>cfg.colorAllLoseByTwo.applyOnlyToColorRounds, v=>cfg.colorAllLoseByTwo.applyOnlyToColorRounds=v));
+  albtCard.appendChild(boolField('Repeated round uses main color', ()=>cfg.colorAllLoseByTwo.repeatMainColor, v=>cfg.colorAllLoseByTwo.repeatMainColor=v));
+  albtCard.appendChild(boolField('Repeat at end of queue (off = right after)', ()=>cfg.colorAllLoseByTwo.repeatAtEnd, v=>cfg.colorAllLoseByTwo.repeatAtEnd=v));
+  wrap.appendChild(albtCard);
+
+  const dangerCard = el(`<div class="card"><h2>Reset</h2></div>`);
+  const resetBtn = el(`<button class="btn danger">Reset Entire Game &amp; Settings</button>`);
+  resetBtn.onclick = ()=>{ if(confirm('This wipes all rounds, scores, and settings back to defaults. Continue?')){ STATE = freshState(); window.STATE = STATE; trySave(); render(); } };
+  dangerCard.appendChild(resetBtn);
+  wrap.appendChild(dangerCard);
+
+  return wrap;
+}
+
+/* ------------------------------- Boot ------------------------------------- */
+render();
+tryLoad();
+
+// Exposed for debugging / console access
+window.STATE = STATE;
+window.render = render;
+window.currentRound = currentRound;
+window.ensurePlayersInitialized = ensurePlayersInitialized;
+window.validateRound = validateRound;
+window.finalizeRound = finalizeRound;
+window.applyColorChange = applyColorChange;
+</script>
+</body>
+</html>

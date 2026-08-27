@@ -32,6 +32,16 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({ gameState, onEditRound }
     return 'suns';
   };
 
+  const getSuitIcon = (color: string) => {
+    const c = color.toLowerCase();
+    if (c.includes('suns')) return '☀️';
+    if (c.includes('spade')) return '♠️';
+    if (c.includes('heart')) return '♥️';
+    if (c.includes('diamond')) return '♦️';
+    if (c.includes('club')) return '♣️';
+    return '';
+  };
+
   return (
     <div className="space-y-6">
       <Card title="Round History" subtitle="View details of completed rounds. You can step back and edit any completed round.">
@@ -55,6 +65,11 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({ gameState, onEditRound }
                       {round.mainColor && (
                         <Badge color={colorPillClass(round.currentColor)}>
                           {round.currentColor}
+                        </Badge>
+                      )}
+                      {round.callSuit && (
+                        <Badge color={colorPillClass(round.callSuit)}>
+                          Call: {getSuitIcon(round.callSuit)}
                         </Badge>
                       )}
                     </div>

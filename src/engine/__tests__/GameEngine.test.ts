@@ -41,6 +41,7 @@ describe('GameEngine', () => {
       expect(round.currentColor).toBeNull();
       expect(round.colorChanged).toBe(false);
       expect(round.callerPlayerId).toBeNull();
+      expect(round.callSuit).toBeNull();
       expect(round.totalCalls).toBe(0);
       expect(round.status).toBeNull();
       expect(round.players).toEqual([]);

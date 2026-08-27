@@ -28,6 +28,16 @@ export const QueueTab: React.FC<QueueTabProps> = ({
     return map[color] || 'neutral';
   };
 
+  const getSuitIcon = (color: Color) => {
+    const c = color.toLowerCase();
+    if (c.includes('suns')) return '☀️';
+    if (c.includes('spade')) return '♠️';
+    if (c.includes('heart')) return '♥️';
+    if (c.includes('diamond')) return '♦️';
+    if (c.includes('club')) return '♣️';
+    return '';
+  };
+
   const handleMoveUp = (index: number) => {
     if (index <= gameState.currentRoundIndex) return; // Cannot move played or current active round
     const updated = [...gameState.rounds];
@@ -117,6 +127,12 @@ export const QueueTab: React.FC<QueueTabProps> = ({
                         changed
                       </span>
                     )}
+                  </span>
+                )}
+
+                {r.callSuit && (
+                  <span className="text-xs font-serif text-ink font-semibold">
+                    Call: {getSuitIcon(r.callSuit)}
                   </span>
                 )}
 

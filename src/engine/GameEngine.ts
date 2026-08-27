@@ -12,7 +12,6 @@ export function createPlayerRoundState(playerId: string, name: string): PlayerRo
     playerId,
     name,
     call: null,
-    callColor: null,
     actualTricks: null,
     result: null,
     isCaller: false,
@@ -44,6 +43,7 @@ export function createRound(
     currentColor: mainColor,
     colorChanged: false,
     callerPlayerId: null,
+    callSuit: null,
     totalCalls: 0,
     status: null,
     players: players.map(p => createPlayerRoundState(p.id, p.name)),
@@ -330,6 +330,7 @@ export function recalculateGameState(state: GameState): GameState {
 
     // Restore play settings: calls, actuals, caller, overrides
     activeRound.callerPlayerId = oldRound.callerPlayerId;
+    activeRound.callSuit = oldRound.callSuit;
     activeRound.currentColor = oldRound.currentColor;
     activeRound.colorChanged = oldRound.colorChanged;
     activeRound.colorChangedByPlayerId = oldRound.colorChangedByPlayerId;
@@ -341,7 +342,6 @@ export function recalculateGameState(state: GameState): GameState {
         return {
           ...freshPlayer,
           call: oldPlayer.call,
-          callColor: oldPlayer.callColor,
           actualTricks: oldPlayer.actualTricks,
           declaration: oldPlayer.declaration,
           riskLevelId: oldPlayer.riskLevelId,

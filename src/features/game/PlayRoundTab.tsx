@@ -146,6 +146,19 @@ export const PlayRoundTab: React.FC<PlayRoundTabProps> = ({
                 ...gameState.players.map(p => ({ value: p.id, label: p.name })),
               ]}
             />
+            <Select
+              label="Call Suit"
+              value={round.callSuit || ''}
+              onChange={(e) => onUpdateRound({ callSuit: e.target.value as Color || null })}
+              options={[
+                { value: '', label: '-- Select Suit --' },
+                { value: 'SUNS', label: 'Suns ☀️' },
+                { value: 'SPADES', label: 'Spades ♠️' },
+                { value: 'HEARTS', label: 'Hearts ♥️' },
+                { value: 'DIAMONDS', label: 'Diamonds ♦️' },
+                { value: 'CLUBS', label: 'Clubs ♣️' },
+              ]}
+            />
 
             {/* Color Change Tools */}
             {round.type === 'COLOR' && gameState.rules.colorChange.enabled && (
@@ -238,7 +251,7 @@ export const PlayRoundTab: React.FC<PlayRoundTabProps> = ({
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 gap-2">
                     <Input
                       label="Call"
                       type="number"
@@ -246,19 +259,6 @@ export const PlayRoundTab: React.FC<PlayRoundTabProps> = ({
                       max={gameState.rules.calls.maximum}
                       value={player.call ?? ''}
                       onChange={(e) => onUpdatePlayer(pIdx, { call: e.target.value === '' ? null : parseInt(e.target.value) })}
-                    />
-                    <Select
-                      label="Suit"
-                      value={player.callColor || ''}
-                      onChange={(e) => onUpdatePlayer(pIdx, { callColor: e.target.value as Color || null })}
-                      options={[
-                        { value: '', label: 'None' },
-                        { value: 'SUNS', label: 'Suns ☀️' },
-                        { value: 'SPADES', label: 'Spades ♠️' },
-                        { value: 'HEARTS', label: 'Hearts ♥️' },
-                        { value: 'DIAMONDS', label: 'Diamonds ♦️' },
-                        { value: 'CLUBS', label: 'Clubs ♣️' },
-                      ]}
                     />
                   </div>
                   <div className="grid grid-cols-1 gap-2">

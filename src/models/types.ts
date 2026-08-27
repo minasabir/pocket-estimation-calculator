@@ -103,7 +103,6 @@ export interface PlayerRoundState {
   playerId: string;
   name: string;
   call: number | null;
-  callColor: Color | null;
   actualTricks: number | null;
   result: 'WIN' | 'LOSS' | null;
   isCaller: boolean;
@@ -140,6 +139,7 @@ export interface Round {
   colorChangedByPlayerId?: string;
   colorChangeCall?: number;
   callerPlayerId: string | null;
+  callSuit: Color | null; // Suit selected by the caller for this round
   totalCalls: number;
   status: RoundStatus | null;
   players: PlayerRoundState[];

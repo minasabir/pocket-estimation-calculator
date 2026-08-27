@@ -1,4 +1,4 @@
-import { GameState, Round, RulesConfig, Player, PlayerRoundState, Color, RoundType, SpecialDeclaration, SpecialEvent } from '../models/types';
+import { GameState, Round, RulesConfig, Player, PlayerRoundState, Color, RoundType, SpecialEvent } from '../models/types';
 import { evaluateRound, computeCallsTotal } from './RuleEngine';
 import { calculateRoundScores } from './ScoreEngine';
 

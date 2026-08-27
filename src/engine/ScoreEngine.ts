@@ -1,5 +1,4 @@
-import { Round, RulesConfig, PlayerRoundState, ScoreBreakdownItem } from '../models/types';
-
+import { Round, RulesConfig, ScoreBreakdownItem } from '../models/types';
 /**
  * Calculates the score components and final scores for each player in the round.
  */

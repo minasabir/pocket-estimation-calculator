@@ -6,7 +6,7 @@ import {
   calculateRoundStatus,
   evaluateRound 
 } from '../RuleEngine';
-import { Round, RulesConfig, PlayerRoundState, Color } from '../../models/types';
+import { Round } from '../../models/types';
 import { POCKET_DEFAULT_CONFIG } from '../../features/settings/defaultPresets';
 
 describe('RuleEngine', () => {

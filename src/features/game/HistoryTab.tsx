@@ -1,5 +1,5 @@
 import React from 'react';
-import { GameState, Round } from '../../models/types';
+import { GameState } from '../../models/types';
 import { Card, Button, Badge } from '../../components/UI';
 
 interface HistoryTabProps {
@@ -44,7 +44,6 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({ gameState, onEditRound }
           <div className="space-y-6 mt-4">
             {playedRounds.map(({ round, index }) => {
               const totalCalls = round.totalCalls;
-              const callerName = gameState.players.find(p => p.id === round.callerPlayerId)?.name || 'None';
 
               return (
                 <div key={round.id} className="p-4 border border-ink/10 rounded-xl bg-white shadow-sm space-y-4">

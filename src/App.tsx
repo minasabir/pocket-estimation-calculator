@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { GameState, GameHistoryItem, RulePreset, PlayerRoundState, Round } from './models/types';
 import { StorageService } from './storage/db';
 import { createNewGame, finalizeRound, skipRound, recalculateGameState, calculatePlayerTotals } from './engine/GameEngine';

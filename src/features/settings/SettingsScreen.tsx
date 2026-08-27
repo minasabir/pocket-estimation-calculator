@@ -338,18 +338,32 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
-                  label="Dash Success Score"
+                  label="Dash Success Score (Under)"
                   type="number"
                   disabled={!config.dash.enabled}
-                  value={config.dash.successScore}
-                  onChange={e => handleUpdateNested('dash', 'dash', 'successScore', parseInt(e.target.value) || 0)}
+                  value={config.dash.underSuccessScore}
+                  onChange={e => handleUpdateNested('dash', 'dash', 'underSuccessScore', parseInt(e.target.value) || 0)}
                 />
                 <Input
-                  label="Dash Failure Penalty"
+                  label="Dash Success Score (Over)"
                   type="number"
                   disabled={!config.dash.enabled}
-                  value={config.dash.failurePenalty}
-                  onChange={e => handleUpdateNested('dash', 'dash', 'failurePenalty', parseInt(e.target.value) || 0)}
+                  value={config.dash.overSuccessScore}
+                  onChange={e => handleUpdateNested('dash', 'dash', 'overSuccessScore', parseInt(e.target.value) || 0)}
+                />
+                <Input
+                  label="Dash Failure Penalty (Under)"
+                  type="number"
+                  disabled={!config.dash.enabled}
+                  value={config.dash.underFailurePenalty}
+                  onChange={e => handleUpdateNested('dash', 'dash', 'underFailurePenalty', parseInt(e.target.value) || 0)}
+                />
+                <Input
+                  label="Dash Failure Penalty (Over)"
+                  type="number"
+                  disabled={!config.dash.enabled}
+                  value={config.dash.overFailurePenalty}
+                  onChange={e => handleUpdateNested('dash', 'dash', 'overFailurePenalty', parseInt(e.target.value) || 0)}
                 />
               </div>
             </div>
@@ -396,52 +410,6 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                   disabled={!config.dashCall.enabled}
                   value={config.dashCall.overFailurePenalty}
                   onChange={e => handleUpdateNested('dashCall', 'dashCall', 'overFailurePenalty', parseInt(e.target.value) || 0)}
-                />
-              </div>
-            </div>
-
-            <hr className="border-ink/5" />
-
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-serif text-base text-ink font-semibold">Zero From Hand Declarations</h3>
-                <label className="flex items-center gap-1.5 text-xs text-ink">
-                  <input
-                    type="checkbox"
-                    checked={config.zeroFromHand.enabled}
-                    onChange={e => handleUpdateNested('zeroFromHand', 'zeroFromHand', 'enabled', e.target.checked)}
-                  />
-                  Enabled
-                </label>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Input
-                  label="Zero From Hand Success Score (Under - Default +20)"
-                  type="number"
-                  disabled={!config.zeroFromHand.enabled}
-                  value={config.zeroFromHand.underSuccessScore}
-                  onChange={e => handleUpdateNested('zeroFromHand', 'zeroFromHand', 'underSuccessScore', parseInt(e.target.value) || 0)}
-                />
-                <Input
-                  label="Zero From Hand Success Score (Over - Default +10)"
-                  type="number"
-                  disabled={!config.zeroFromHand.enabled}
-                  value={config.zeroFromHand.overSuccessScore}
-                  onChange={e => handleUpdateNested('zeroFromHand', 'zeroFromHand', 'overSuccessScore', parseInt(e.target.value) || 0)}
-                />
-                <Input
-                  label="Zero From Hand Failure Penalty (Under)"
-                  type="number"
-                  disabled={!config.zeroFromHand.enabled}
-                  value={config.zeroFromHand.underFailurePenalty}
-                  onChange={e => handleUpdateNested('zeroFromHand', 'zeroFromHand', 'underFailurePenalty', parseInt(e.target.value) || 0)}
-                />
-                <Input
-                  label="Zero From Hand Failure Penalty (Over)"
-                  type="number"
-                  disabled={!config.zeroFromHand.enabled}
-                  value={config.zeroFromHand.overFailurePenalty}
-                  onChange={e => handleUpdateNested('zeroFromHand', 'zeroFromHand', 'overFailurePenalty', parseInt(e.target.value) || 0)}
                 />
               </div>
             </div>

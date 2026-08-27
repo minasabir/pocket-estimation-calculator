@@ -1,7 +1,6 @@
 import React from 'react';
-import { GameHistoryItem, GameState } from '../../models/types';
+import { GameHistoryItem } from '../../models/types';
 import { Card, Button, Badge } from '../../components/UI';
-import { StorageService } from '../../storage/db';
 
 interface HistoryScreenProps {
   history: GameHistoryItem[];

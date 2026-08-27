@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { calculateRoundScores } from '../ScoreEngine';
-import { Round, RulesConfig } from '../../models/types';
+import { Round } from '../../models/types';
 import { POCKET_DEFAULT_CONFIG } from '../../features/settings/defaultPresets';
 
 describe('ScoreEngine', () => {
@@ -169,18 +169,6 @@ describe('ScoreEngine', () => {
       expect(dashCallItem?.amount).toBe(POCKET_DEFAULT_CONFIG.dashCall.underSuccessScore);
     });
 
-    it('should apply ZERO_FROM_HAND over success score when player wins in OVER status', () => {
-      const round = createBaseRound();
-      round.players[0].declaration = 'ZERO_FROM_HAND';
-      round.players[0].call = 0;
-      round.players[0].actualTricks = 0;
-      round.status = 'OVER';
-      
-      const result = calculateRoundScores(round, POCKET_DEFAULT_CONFIG);
-      
-      const zeroItem = result.players[0].scoreBreakdown.find(item => item.type === 'ZERO_FROM_HAND');
-      expect(zeroItem?.amount).toBe(POCKET_DEFAULT_CONFIG.zeroFromHand.overSuccessScore);
-    });
   });
 
   describe('Only Winner/Loser Bonuses', () => {

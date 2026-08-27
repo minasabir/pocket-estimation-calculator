@@ -58,7 +58,7 @@ export const StorageService = {
     const history = this.getHistory();
     
     // Calculate final scores
-    const finalScores = game.players.map((p, idx) => {
+    const finalScores = game.players.map((_, idx) => {
       return game.rounds.reduce((sum, r) => {
         if (!r.played) return sum;
         const playerState = r.players[idx];

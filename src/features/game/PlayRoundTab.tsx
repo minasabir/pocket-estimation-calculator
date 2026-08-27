@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { GameState, Round, Color, SpecialDeclaration, PlayerRoundState } from '../../models/types';
 import { Card, Button, Badge, Input, Select } from '../../components/UI';
-import { computeCallsTotal, computeActualTotal, validateRound, calculateRoundStatus } from '../../engine/RuleEngine';
+import { computeCallsTotal, validateRound, calculateRoundStatus } from '../../engine/RuleEngine';
 
 interface PlayRoundTabProps {
   gameState: GameState;
@@ -48,7 +48,6 @@ export const PlayRoundTab: React.FC<PlayRoundTabProps> = ({
   }
 
   const totalCalls = computeCallsTotal(round);
-  const totalActual = computeActualTotal(round);
   const liveStatus = calculateRoundStatus(round, gameState.rules);
 
   const getColorBadge = (colorName: Color | null) => {
@@ -287,7 +286,6 @@ export const PlayRoundTab: React.FC<PlayRoundTabProps> = ({
                       { value: 'NONE', label: 'None' },
                       { value: 'DASH', label: 'Dash' },
                       { value: 'DASH_CALL', label: 'Dash Call' },
-                      { value: 'ZERO_FROM_HAND', label: 'Zero From Hand' },
                     ]}
                   />
 

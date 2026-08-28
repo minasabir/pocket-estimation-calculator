@@ -254,6 +254,11 @@ describe('ScoreEngine', () => {
       const onlyWinnerItem2 = result.players[2].scoreBreakdown.find(item => item.type === 'ONLY_WINNER');
       expect(onlyWinnerItem0).toBeUndefined();
       expect(onlyWinnerItem2).toBeUndefined();
+      
+      // Dash Call should be exactly 30 (no Only Winner bonus, no call-based score)
+      const dashCallItem = result.players[2].scoreBreakdown.find(item => item.type === 'DASH_CALL');
+      expect(dashCallItem?.amount).toBe(30);
+      expect(result.players[2].finalScore).toBe(30);
     });
 
     it('should apply only loser penalty when exactly one player loses (-10)', () => {

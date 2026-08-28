@@ -41,32 +41,35 @@ export function calculateRoundScores(round: Round, config: RulesConfig): Round {
     const call = player.call ?? 0;
 
     // 1. Call-based Score (Win: call+10 for 1-7, call² for 8-13; Lose: |call-actual| for 1-7, (|call-actual|+10)*2 for 8-13)
-    let callScore: number;
-    const actualTricks = player.actualTricks ?? 0;
-    const difference = Math.abs(call - actualTricks);
-    
-    if (isWin) {
-      if (call >= 8) {
-        // Super call: 8→64, 9→81, 10→100, 11→121, 12→144, 13→169
-        callScore = call * call;
+    // Skip for DASH and DASH_CALL declarations (they have their own scoring)
+    if (player.declaration !== 'DASH' && player.declaration !== 'DASH_CALL') {
+      let callScore: number;
+      const actualTricks = player.actualTricks ?? 0;
+      const difference = Math.abs(call - actualTricks);
+      
+      if (isWin) {
+        if (call >= 8) {
+          // Super call: 8→64, 9→81, 10→100, 11→121, 12→144, 13→169
+          callScore = call * call;
+        } else {
+          // Normal call: 1→11, 2→12, 3→13, 4→14, 5→15, 6→16, 7→17
+          callScore = call + 10;
+        }
       } else {
-        // Normal call: 1→11, 2→12, 3→13, 4→14, 5→15, 6→16, 7→17
-        callScore = call + 10;
+        if (call >= 8) {
+          // Super call lose: (|call - actual| + 10) * 2 (e.g., call=10, actual=12 → (|10-12|+10)*2 = 24)
+          callScore = -((difference + 10) * 2);
+        } else {
+          // Normal call lose: |call - actualTricks| (e.g., if call=5 and actual=3, lose=-2)
+          callScore = -difference;
+        }
       }
-    } else {
-      if (call >= 8) {
-        // Super call lose: (|call - actual| + 10) * 2 (e.g., call=10, actual=12 → (|10-12|+10)*2 = 24)
-        callScore = -((difference + 10) * 2);
-      } else {
-        // Normal call lose: |call - actualTricks| (e.g., if call=5 and actual=3, lose=-2)
-        callScore = -difference;
-      }
+      breakdown.push({
+        type: 'CALL_SCORE',
+        description: `Call Score (${call} tricks)`,
+        amount: callScore,
+      });
     }
-    breakdown.push({
-      type: 'CALL_SCORE',
-      description: `Call Score (${call} tricks)`,
-      amount: callScore,
-    });
 
     // 2. Caller Bonus/Penalty (fixed: win +10, lose -10)
     if (player.isCaller) {

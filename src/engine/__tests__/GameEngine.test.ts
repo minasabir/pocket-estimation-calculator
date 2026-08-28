@@ -301,5 +301,35 @@ describe('GameEngine', () => {
       expect(recalculated.rounds[0].played).toBe(true);
       expect(recalculated.rounds[1].played).toBe(false);
     });
+
+    it('should preserve player inputs when editing a previous round', () => {
+      const game = createNewGame(['P1', 'P2', 'P3', 'P4'], POCKET_DEFAULT_CONFIG, 'test');
+      
+      // Play first round with specific inputs
+      game.rounds[0].played = true;
+      game.rounds[0].callerPlayerId = 'p1';
+      game.rounds[0].callSuit = 'HEARTS';
+      game.rounds[0].players[0].call = 5;
+      game.rounds[0].players[0].actualTricks = 5;
+      game.rounds[0].players[0].declaration = 'NONE';
+      game.rounds[0].players[0].riskLevelId = 'risk';
+      game.rounds[0].players[1].call = 4;
+      game.rounds[0].players[1].actualTricks = 4;
+      game.rounds[0].players[1].declaration = 'DASH';
+      game.rounds[0].players[1].riskLevelId = 'normal';
+      
+      game.currentRoundIndex = 1;
+      
+      const recalculated = recalculateGameState(game);
+      
+      // Verify inputs are preserved
+      expect(recalculated.rounds[0].callerPlayerId).toBe('p1');
+      expect(recalculated.rounds[0].callSuit).toBe('HEARTS');
+      expect(recalculated.rounds[0].players[0].call).toBe(5);
+      expect(recalculated.rounds[0].players[0].actualTricks).toBe(5);
+      expect(recalculated.rounds[0].players[0].declaration).toBe('NONE');
+      expect(recalculated.rounds[0].players[0].riskLevelId).toBe('risk');
+      expect(recalculated.rounds[0].players[1].declaration).toBe('DASH');
+    });
   });
 });

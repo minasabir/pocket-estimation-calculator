@@ -52,7 +52,7 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({ gameState, onEditRound }
           </div>
         ) : (
           <div className="space-y-6 mt-4">
-            {playedRounds.map(({ round, index }) => {
+            {playedRounds.map(({ round, index: originalIndex }) => {
               const totalCalls = round.totalCalls;
 
               return (
@@ -139,7 +139,7 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({ gameState, onEditRound }
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleEditClick(index, round.number)}
+                      onClick={() => handleEditClick(originalIndex, round.number)}
                     >
                       Edit This Round
                     </Button>

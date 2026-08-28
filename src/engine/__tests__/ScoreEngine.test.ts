@@ -55,7 +55,7 @@ describe('ScoreEngine', () => {
       expect(callScoreItem?.amount).toBe(64); // 8 * 8
     });
 
-    it('should calculate super call score for LOSS (call 8 = -32)', () => {
+    it('should calculate super call score for LOSS (call 8, actual 5 = -26)', () => {
       const round = createBaseRound();
       round.players[2].call = 8;
       round.players[2].actualTricks = 5;
@@ -63,7 +63,7 @@ describe('ScoreEngine', () => {
       const result = calculateRoundScores(round, POCKET_DEFAULT_CONFIG);
       
       const callScoreItem = result.players[2].scoreBreakdown.find(item => item.type === 'CALL_SCORE');
-      expect(callScoreItem?.amount).toBe(-32); // (8*8)/2 = -32
+      expect(callScoreItem?.amount).toBe(-26); // (|8-5|+10)*2 = (3+10)*2 = -26
     });
   });
 

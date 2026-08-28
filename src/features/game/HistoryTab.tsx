@@ -61,7 +61,10 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({ gameState, onEditRound }
                   <div className="flex justify-between items-center flex-wrap gap-2">
                     <div className="flex items-center gap-2">
                       <h4 className="font-serif font-bold text-lg text-ink">Round #{round.number}</h4>
-                      <Badge color="gold">{round.type}</Badge>
+                      <Badge color="gold">
+                        {round.type}
+                        {round.multiplier > 1 && <span className="ml-1">×{round.multiplier}</span>}
+                      </Badge>
                       {round.mainColor && (
                         <Badge color={colorPillClass(round.currentColor)}>
                           {round.currentColor}
@@ -77,9 +80,6 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({ gameState, onEditRound }
                       <Badge color={round.status === 'UNDER' ? 'neutral' : round.status === 'OVER' ? 'gold' : 'loss'}>
                         {round.status} ({totalCalls} calls)
                       </Badge>
-                      {round.multiplier > 1 && (
-                        <Badge color="gold">x{round.multiplier}</Badge>
-                      )}
                     </div>
                   </div>
 

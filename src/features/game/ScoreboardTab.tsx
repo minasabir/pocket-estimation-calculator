@@ -163,7 +163,12 @@ export const ScoreboardTab: React.FC<ScoreboardTabProps> = ({ gameState }) => {
                         <td className="py-2 px-2 text-ink font-semibold">#{r.number}</td>
                         <td className="py-2 px-2 text-ink-dim">
                           <div className="flex flex-col gap-0.5">
-                            <span>{r.type}</span>
+                            <span>
+                              {r.type}
+                              {r.multiplier > 1 && (
+                                <span className="ml-1 text-gold-bright font-bold">×{r.multiplier}</span>
+                              )}
+                            </span>
                             {r.callSuit && (
                               <span className="text-[9px]">{getSuitIcon(r.callSuit)}</span>
                             )}

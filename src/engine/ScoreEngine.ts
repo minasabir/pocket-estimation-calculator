@@ -40,7 +40,7 @@ export function calculateRoundScores(round: Round, config: RulesConfig): Round {
     const isWin = player.result === 'WIN';
     const call = player.call ?? 0;
 
-    // 1. Call-based Score (Win: call+10 for 1-7, call² for 8-13; Lose: |call-actual| for 1-7, (call²)/2 for 8-13)
+    // 1. Call-based Score (Win: call+10 for 1-7, call² for 8-13; Lose: |call-actual| for 1-7, (|call-actual|+10)*2 for 8-13)
     let callScore: number;
     const actualTricks = player.actualTricks ?? 0;
     const difference = Math.abs(call - actualTricks);
@@ -55,8 +55,8 @@ export function calculateRoundScores(round: Round, config: RulesConfig): Round {
       }
     } else {
       if (call >= 8) {
-        // Super call lose: (call * call) / 2 integer (8→32, 9→40, 10→50, 11→60, 12→72, 13→84)
-        callScore = -Math.floor((call * call) / 2);
+        // Super call lose: (|call - actual| + 10) * 2 (e.g., call=10, actual=12 → (|10-12|+10)*2 = 24)
+        callScore = -((difference + 10) * 2);
       } else {
         // Normal call lose: |call - actualTricks| (e.g., if call=5 and actual=3, lose=-2)
         callScore = -difference;

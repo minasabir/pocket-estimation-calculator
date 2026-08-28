@@ -48,8 +48,8 @@ export const POCKET_DEFAULT_CONFIG: RulesConfig = {
     enabled: true,
     underSuccessScore: 30,
     overSuccessScore: 20,
-    underFailurePenalty: -10,
-    overFailurePenalty: -10,
+    underFailurePenalty: -20,
+    overFailurePenalty: -20,
   },
   onlyWinner: {
     enabled: true,

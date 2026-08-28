@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { calculateRoundScores } from '../ScoreEngine';
-import { Round } from '../../models/types';
 import { POCKET_DEFAULT_CONFIG } from '../../features/settings/defaultPresets';
 import { evaluateRound } from '../RuleEngine';
+import { Round } from '../../models/types';
 
 describe('ScoreEngine', () => {
   const createBaseRound = (): Round => ({
@@ -201,6 +201,59 @@ describe('ScoreEngine', () => {
       
       const onlyWinnerItem = result.players[0].scoreBreakdown.find(item => item.type === 'ONLY_WINNER');
       expect(onlyWinnerItem?.amount).toBe(10);
+    });
+
+    it('should NOT apply only winner bonus when multiple players win', () => {
+      const round = createBaseRound();
+      // 2 winners, 2 losers
+      round.players[0].result = 'WIN';
+      round.players[1].result = 'WIN';
+      round.players[2].result = 'LOSS';
+      round.players[2].actualTricks = 2;
+      round.players[3].result = 'LOSS';
+      round.players[3].actualTricks = 2;
+      
+      const result = calculateRoundScores(round, POCKET_DEFAULT_CONFIG);
+      
+      const onlyWinnerItem0 = result.players[0].scoreBreakdown.find(item => item.type === 'ONLY_WINNER');
+      const onlyWinnerItem1 = result.players[1].scoreBreakdown.find(item => item.type === 'ONLY_WINNER');
+      expect(onlyWinnerItem0).toBeUndefined();
+      expect(onlyWinnerItem1).toBeUndefined();
+    });
+
+    it('should NOT apply only winner bonus with Dash Call and multiple winners', () => {
+      const round = createBaseRound();
+      round.status = 'UNDER';
+      // 3omda: WIN (Caller, call 6, actual 6)
+      round.players[0].call = 6;
+      round.players[0].actualTricks = 6;
+      round.players[0].isCaller = true;
+      // saber: LOSE (call 3, actual 2)
+      round.players[1].call = 3;
+      round.players[1].actualTricks = 2;
+      // mouner: WIN (Dash Call, call 0, actual 0)
+      round.players[2].declaration = 'DASH_CALL';
+      round.players[2].call = 0;
+      round.players[2].actualTricks = 0;
+      // mina: LOSE (call 2, actual 3)
+      round.players[3].call = 2;
+      round.players[3].actualTricks = 3;
+      
+      // First evaluate to determine WIN/LOSS results
+      const evaluated = evaluateRound(round, POCKET_DEFAULT_CONFIG);
+      
+      // Then calculate scores
+      const result = calculateRoundScores(evaluated, POCKET_DEFAULT_CONFIG);
+      
+      // Check winner count
+      const winners = result.players.filter(p => p.result === 'WIN');
+      expect(winners.length).toBe(2); // 3omda and mouner
+      
+      // Should NOT have Only Winner bonus
+      const onlyWinnerItem0 = result.players[0].scoreBreakdown.find(item => item.type === 'ONLY_WINNER');
+      const onlyWinnerItem2 = result.players[2].scoreBreakdown.find(item => item.type === 'ONLY_WINNER');
+      expect(onlyWinnerItem0).toBeUndefined();
+      expect(onlyWinnerItem2).toBeUndefined();
     });
 
     it('should apply only loser penalty when exactly one player loses (-10)', () => {

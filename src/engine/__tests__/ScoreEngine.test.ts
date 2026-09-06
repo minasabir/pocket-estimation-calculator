@@ -284,6 +284,49 @@ describe('ScoreEngine', () => {
       const onlyLoserItem = result.players[1].scoreBreakdown.find(item => item.type === 'ONLY_LOSER');
       expect(onlyLoserItem?.amount).toBe(-10);
     });
+
+    it('should NOT multiply only loser penalty in double game', () => {
+      const round = createBaseRound();
+      round.incomingMultiplier = 2;
+      round.players[0].result = 'WIN';
+      round.players[1].result = 'LOSS';
+      round.players[1].call = 1;
+      round.players[1].actualTricks = 2;
+      round.players[2].result = 'WIN';
+      round.players[3].result = 'WIN';
+      
+      const result = calculateRoundScores(round, POCKET_DEFAULT_CONFIG);
+      
+      // Call score: -1, after x2: -2
+      // Only loser penalty: -10 (NOT multiplied)
+      // Total: -12
+      expect(result.players[1].finalScore).toBe(-12);
+      
+      const onlyLoserItem = result.players[1].scoreBreakdown.find(item => item.type === 'ONLY_LOSER');
+      expect(onlyLoserItem?.amount).toBe(-10);
+    });
+
+    it('should NOT multiply only winner bonus in double game', () => {
+      const round = createBaseRound();
+      round.incomingMultiplier = 2;
+      round.players[0].result = 'WIN';
+      round.players[0].call = 1;
+      round.players[0].actualTricks = 1;
+      round.players[1].result = 'LOSS';
+      round.players[2].result = 'LOSS';
+      round.players[3].result = 'LOSS';
+      
+      const result = calculateRoundScores(round, POCKET_DEFAULT_CONFIG);
+      
+      // Call score: 11, after x2: 22
+      // Caller bonus: 10, after x2: 20
+      // Only winner bonus: 10 (NOT multiplied)
+      // Total: 52
+      expect(result.players[0].finalScore).toBe(52);
+      
+      const onlyWinnerItem = result.players[0].scoreBreakdown.find(item => item.type === 'ONLY_WINNER');
+      expect(onlyWinnerItem?.amount).toBe(10);
+    });
   });
 
   describe('Multipliers', () => {

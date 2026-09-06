@@ -126,25 +126,7 @@ export function calculateRoundScores(round: Round, config: RulesConfig): Round {
       });
     }
 
-    // 6. Only Winner Bonus
-    if (config.onlyWinner.enabled && winnerCount === 1 && isWin) {
-      breakdown.push({
-        type: 'ONLY_WINNER',
-        description: 'Only Winner Bonus',
-        amount: config.onlyWinner.bonus,
-      });
-    }
-
-    // 7. Only Loser Penalty
-    if (config.onlyLoser.enabled && loserCount === 1 && !isWin) {
-      breakdown.push({
-        type: 'ONLY_LOSER',
-        description: 'Only Loser Penalty',
-        amount: config.onlyLoser.penalty,
-      });
-    }
-
-    // Calculate subtotal from additive components
+    // Calculate subtotal from additive components (excluding Only Winner/Loser)
     const subtotal = breakdown.reduce((sum, item) => sum + item.amount, 0);
     let calculated = subtotal;
 
@@ -156,6 +138,26 @@ export function calculateRoundScores(round: Round, config: RulesConfig): Round {
         description: `Round Multiplier x${roundMultiplier}`,
         amount: calculated - subtotal,
       });
+    }
+
+    // 6. Only Winner Bonus (added AFTER multiplier, not multiplied)
+    if (config.onlyWinner.enabled && winnerCount === 1 && isWin) {
+      breakdown.push({
+        type: 'ONLY_WINNER',
+        description: 'Only Winner Bonus',
+        amount: config.onlyWinner.bonus,
+      });
+      calculated += config.onlyWinner.bonus;
+    }
+
+    // 7. Only Loser Penalty (added AFTER multiplier, not multiplied)
+    if (config.onlyLoser.enabled && loserCount === 1 && !isWin) {
+      breakdown.push({
+        type: 'ONLY_LOSER',
+        description: 'Only Loser Penalty',
+        amount: config.onlyLoser.penalty,
+      });
+      calculated += config.onlyLoser.penalty;
     }
 
     player.scoreBreakdown = breakdown;

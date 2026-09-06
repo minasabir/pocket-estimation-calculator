@@ -125,11 +125,18 @@ function App() {
   const handleEditRound = (roundIndex: number) => {
     if (!gameState) return;
     
-    // Reset to the round being edited
+    // Save the original current round (where user was playing)
+    const originalCurrentRound = gameState.currentRoundIndex;
+    
+    // Set to the round being edited for recalculation
     const updatedState = { ...gameState, currentRoundIndex: roundIndex };
     
-    // Recalculate all rounds from this point
+    // Recalculate all rounds
     const recalculatedState = recalculateGameState(updatedState);
+    
+    // Restore the original current round (stay where user was)
+    recalculatedState.currentRoundIndex = originalCurrentRound;
+    
     setGameState(recalculatedState);
     setGameTab('PLAY');
   };

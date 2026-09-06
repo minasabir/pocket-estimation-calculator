@@ -308,17 +308,11 @@ export function recalculateGameState(state: GameState): GameState {
     status: 'ACTIVE',
   };
 
-  // 3. Re-play each round that was marked played in the old state, up to the edited round
-  const targetRoundIndex = state.currentRoundIndex;
+  // 3. Re-play each round that was marked played in the old state
   for (let i = 0; i < state.rounds.length; i++) {
     const oldRound = state.rounds[i];
     if (!oldRound.played) {
       // If we hit an unplayed round, we stop playing
-      break;
-    }
-    
-    // Stop at the round being edited - don't replay subsequent rounds
-    if (i > targetRoundIndex) {
       break;
     }
 
@@ -351,6 +345,7 @@ export function recalculateGameState(state: GameState): GameState {
           declaration: oldPlayer.declaration,
           riskLevelId: oldPlayer.riskLevelId,
           manualScoreOverride: oldPlayer.manualScoreOverride,
+          manualLoseOverride: oldPlayer.manualLoseOverride,
         };
       }
       return freshPlayer;
@@ -360,9 +355,6 @@ export function recalculateGameState(state: GameState): GameState {
     // This will compute scores, handle Sa'aydeh, and inject repeated rounds into recalculatedState.rounds.
     recalculatedState = finalizeRound(recalculatedState, activeIndex);
   }
-
-  // Set current round index to the target round being edited
-  recalculatedState.currentRoundIndex = targetRoundIndex;
 
   // Update game status
   const allPlayed = recalculatedState.rounds.every(r => r.played);

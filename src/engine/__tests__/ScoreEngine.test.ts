@@ -85,6 +85,17 @@ describe('ScoreEngine', () => {
       const callerItem = result.players[0].scoreBreakdown.find(item => item.type === 'CALLER');
       expect(callerItem?.amount).toBe(-10);
     });
+
+    it('should NOT add caller bonus for super call winning (call 8)', () => {
+      const round = createBaseRound();
+      round.players[0].call = 8;
+      round.players[0].actualTricks = 8;
+      round.players[0].result = 'WIN';
+      const result = calculateRoundScores(round, POCKET_DEFAULT_CONFIG);
+      
+      const callerItem = result.players[0].scoreBreakdown.find(item => item.type === 'CALLER');
+      expect(callerItem).toBeUndefined();
+    });
   });
 
   describe('With Bonus/Penalty', () => {

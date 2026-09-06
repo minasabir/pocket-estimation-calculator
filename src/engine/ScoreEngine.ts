@@ -72,7 +72,8 @@ export function calculateRoundScores(round: Round, config: RulesConfig): Round {
     }
 
     // 2. Caller Bonus/Penalty (fixed: win +10, lose -10)
-    if (player.isCaller) {
+    // Skip for super calls (8-13)
+    if (player.isCaller && call < 8) {
       const callerVal = isWin ? 10 : -10;
       breakdown.push({
         type: 'CALLER',

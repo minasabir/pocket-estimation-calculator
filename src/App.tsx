@@ -78,8 +78,21 @@ function App() {
   const handleFinalizeRound = () => {
     if (!gameState) return;
     
-    const updatedState = finalizeRound(gameState, gameState.currentRoundIndex);
-    setGameState(updatedState);
+    // Check if we're editing a past round
+    const editingOriginalRound = sessionStorage.getItem('editingOriginalRound');
+    
+    if (editingOriginalRound) {
+      // We're editing - recalculate all rounds and return to original round
+      const originalRound = parseInt(editingOriginalRound, 10);
+      const recalculatedState = recalculateGameState(gameState);
+      recalculatedState.currentRoundIndex = originalRound;
+      setGameState(recalculatedState);
+      sessionStorage.removeItem('editingOriginalRound');
+    } else {
+      // Normal finalization
+      const updatedState = finalizeRound(gameState, gameState.currentRoundIndex);
+      setGameState(updatedState);
+    }
     
     // Auto-switch to scoreboard after finalizing
     setGameTab('SCOREBOARD');
@@ -128,17 +141,14 @@ function App() {
     // Save the original current round (where user was playing)
     const originalCurrentRound = gameState.currentRoundIndex;
     
-    // Set to the round being edited for recalculation
+    // Set to the round being edited
     const updatedState = { ...gameState, currentRoundIndex: roundIndex };
     
-    // Recalculate all rounds
-    const recalculatedState = recalculateGameState(updatedState);
-    
-    // Restore the original current round (stay where user was)
-    recalculatedState.currentRoundIndex = originalCurrentRound;
-    
-    setGameState(recalculatedState);
+    setGameState(updatedState);
     setGameTab('PLAY');
+    
+    // Store the original round for when user finalizes
+    sessionStorage.setItem('editingOriginalRound', originalCurrentRound.toString());
   };
 
   const handleSavePreset = (preset: RulePreset) => {

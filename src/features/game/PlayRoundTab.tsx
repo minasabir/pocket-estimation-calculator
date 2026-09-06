@@ -307,6 +307,14 @@ export const PlayRoundTab: React.FC<PlayRoundTabProps> = ({
                     value={player.manualScoreOverride ?? ''}
                     onChange={(e) => onUpdatePlayer(pIdx, { manualScoreOverride: e.target.value === '' ? null : parseInt(e.target.value) })}
                   />
+
+                  <Input
+                    label="Lose Override (auto-negative)"
+                    type="number"
+                    placeholder="Auto"
+                    value={player.manualLoseOverride ?? ''}
+                    onChange={(e) => onUpdatePlayer(pIdx, { manualLoseOverride: e.target.value === '' ? null : parseInt(e.target.value) })}
+                  />
                 </div>
               );
             })}

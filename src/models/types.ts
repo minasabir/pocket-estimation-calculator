@@ -111,6 +111,7 @@ export interface PlayerRoundState {
   riskLevelId: string;
   calculatedScore: number;
   manualScoreOverride: number | null;
+  manualLoseOverride: number | null;
   finalScore: number;
   scoreBreakdown: ScoreBreakdownItem[];
 }

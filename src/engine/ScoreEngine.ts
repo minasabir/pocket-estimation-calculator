@@ -163,6 +163,9 @@ export function calculateRoundScores(round: Round, config: RulesConfig): Round {
     // Apply manual override if active
     if (player.manualScoreOverride !== null) {
       player.finalScore = player.manualScoreOverride;
+    } else if (player.manualLoseOverride !== null) {
+      // Auto-negative for lose override
+      player.finalScore = -player.manualLoseOverride;
     } else {
       player.finalScore = calculated;
     }

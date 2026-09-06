@@ -20,6 +20,7 @@ export function createPlayerRoundState(playerId: string, name: string): PlayerRo
     riskLevelId: 'normal',
     calculatedScore: 0,
     manualScoreOverride: null,
+    manualLoseOverride: null,
     finalScore: 0,
     scoreBreakdown: [],
   };
